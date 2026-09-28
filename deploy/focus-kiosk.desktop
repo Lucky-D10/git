@@ -1,0 +1,7 @@
+[Desktop Entry]
+Type=Application
+Name=Focus Control Kiosk
+Comment=Open the local Focus control page
+Exec=/bin/sh /opt/focus/current/deploy/kiosk.sh
+Terminal=false
+X-GNOME-Autostart-enabled=true

@@ -1,0 +1,2 @@
+# Append this line to ~/.config/labwc/autostart (do not replace existing content).
+/bin/sh /opt/focus/current/deploy/kiosk.sh &

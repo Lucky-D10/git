@@ -1,0 +1,62 @@
+{
+  "environment": {
+    "python": "3.9.13",
+    "platform": "Windows-10-10.0.26200-SP0",
+    "architecture": "AMD64",
+    "packages": {
+      "attention_usb": "not installed",
+      "RPi.GPIO": "not installed"
+    },
+    "sqlite": "3.37.2",
+    "os_release": null
+  },
+  "config": {
+    "mode": "simulation",
+    "players": 1,
+    "session_kind": "experience",
+    "headband_ports": [],
+    "pwm_pins": [
+      2,
+      11
+    ],
+    "direction_pins": [
+      4,
+      3,
+      10,
+      9
+    ],
+    "standby_pin": 17,
+    "pwm_frequency": 10000,
+    "min_running_duty": 25,
+    "max_running_duty": 50,
+    "duty_rise_per_second": 25.0,
+    "data_timeout": 1.5,
+    "command_timeout": 0.8,
+    "control_interval_ms": 50,
+    "motor_interval": 0.02,
+    "snapshot_interval": 0.01,
+    "reconnect_interval": 1.0,
+    "calibration_timeout": 60,
+    "diagnostic_timeout": 8.0,
+    "diagnostic_interval": 0.5,
+    "max_race_speed": 10.0,
+    "start_threshold": 20.0,
+    "high_focus_threshold": 70.0,
+    "reward_seconds": 5.0,
+    "smoothing_seconds": 0.8,
+    "virtual_distance_scale": 0.6,
+    "simulation_seed": 20260926,
+    "simulation_interval": 1,
+    "simulation_calibration_seconds": 5,
+    "countdown_seconds": 3,
+    "zero_is_valid": false,
+    "storage_path": "data/focus.sqlite3",
+    "storage_flush_seconds": 0.25,
+    "storage_max_lag_seconds": 2,
+    "storage_queue_size": 256,
+    "disk_warning_mb": 256,
+    "log_max_bytes": 2097152,
+    "log_backup_count": 5
+  },
+  "config_sha256": "d1650d8d27b6f779d460ff5a26ee50532edec2a6cc5fd8cf9443923bf922aaa5"
+}

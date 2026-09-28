@@ -1,0 +1,123 @@
+import sqlite3
+import tempfile
+import time
+from pathlib import Path
+from types import SimpleNamespace
+import unittest
+
+from backend.engine import Engine
+from backend.service import BackendService, DeviceFrame
+from settings import Config
+
+
+def config(directory, **overrides):
+    values = dict(mode="simulation", players=2, data_timeout=.2,
+                  countdown_seconds=.1, storage_path=str(Path(directory) / "focus.sqlite3"))
+    values.update(overrides)
+    return Config(**values)
+
+
+def normal(engine, lane, seq, raw=80, t=None):
+    t = engine.now if t is None else t
+    return engine.feed(lane, {"raw": raw, "sequence": seq, "received": t,
+                              "generation": 0, "connected": True, "worn": True, "state": "normal"})
+
+
+class EngineTests(unittest.TestCase):
+    def test_start_pause_resume_and_stale_session_intent_are_headless(self):
+        c = config(tempfile.mkdtemp())
+        e = Engine(c, "s1", "training", duration=2)
+        normal(e, 1, 1); normal(e, 2, 1)
+        self.assertFalse(e.intent("start", "old"))
+        self.assertTrue(e.intent("start", "s1"))
+        e.advance(.1)
+        self.assertEqual(e.state, "running")
+        e.advance(.2)
+        running = e.elapsed
+        self.assertTrue(e.intent("pause", "s1"))
+        e.advance(10)
+        self.assertAlmostEqual(e.elapsed, running)
+        normal(e, 1, 2, t=e.now); normal(e, 2, 2, t=e.now)
+        self.assertTrue(e.intent("resume", "s1"))
+
+    def test_duplicate_does_not_extend_freshness_and_missing_reason_is_preserved(self):
+        c = config(tempfile.mkdtemp())
+        e = Engine(c, "s", "training")
+        normal(e, 1, 1, t=0)
+        e.advance(.19)
+        self.assertFalse(normal(e, 1, 1, t=.19))
+        self.assertEqual(e.lanes[0].reason, "valid")
+        self.assertIn("duplicate", [row.get("reason") for row in e.events])
+        e.advance(.21)
+        self.assertEqual(e.lanes[0].reason, "stale")
+        e.feed(2, {"raw": None, "sequence": 1, "received": e.now, "generation": 0,
+                   "connected": True, "worn": True, "state": "normal"})
+        self.assertEqual(e.lanes[1].reason, "missing_attention")
+
+    def test_formal_all_signal_loss_aborts_and_emergency_blocks_late_callback(self):
+        c = config(tempfile.mkdtemp(), session_kind="formal")
+        e = Engine(c, "s", "training")
+        normal(e, 1, 1); normal(e, 2, 1); e.intent("start", "s"); e.advance(.1)
+        e.intent("emergency", "s")
+        self.assertEqual(e.safety, "emergency_locked")
+        self.assertFalse(normal(e, 2, 2, t=e.now))
+        self.assertEqual(e.lanes[1].power, 0)
+
+    def test_samples_are_lane_specific_and_statistics_need_two_samples(self):
+        c = config(tempfile.mkdtemp())
+        e = Engine(c, "s", "training")
+        normal(e, 1, 1); normal(e, 2, 1); e.intent("start", "s"); e.advance(.1)
+        normal(e, 1, 2, 90, e.now); normal(e, 2, 2, 50, e.now); e.advance(.2)
+        players = e.snapshot()["players"]
+        self.assertIsNone(players[0]["average"])  # only samples received after run count
+        normal(e, 1, 3, 80, e.now); e.advance(.25)
+        self.assertIsNotNone(e.snapshot()["players"][0]["average"])
+        self.assertIsNone(e.snapshot()["players"][1]["average"])
+
+
+class StorageTests(unittest.TestCase):
+    def test_service_persists_without_blocking_and_marks_terminal_session(self):
+        with tempfile.TemporaryDirectory() as directory:
+            c = config(directory)
+            service = BackendService(c, "training", duration=.1)
+            service.start()
+            service.submit_frame(DeviceFrame(1, 80, 1, connected=True, worn=True, state="normal"))
+            service.submit_frame(DeviceFrame(2, 80, 1, connected=True, worn=True, state="normal"))
+            service.submit_intent("start")
+            time.sleep(.3)
+            service.stop()
+            self.assertIsNone(service.store.error)
+            self.assertTrue(service.snapshot()["saved"])
+            db = sqlite3.connect(c.storage_path)
+            try:
+                self.assertEqual(db.execute("SELECT COUNT(*) FROM sessions").fetchone()[0], 1)
+                self.assertGreater(db.execute("SELECT COUNT(*) FROM events").fetchone()[0], 0)
+                self.assertEqual(db.execute("SELECT COUNT(*) FROM configs").fetchone()[0], 1)
+            finally:
+                db.close()
+
+            from backend.replay import replay_session
+            replayed = replay_session(c.storage_path, service.session_id)
+            self.assertTrue(replayed["matched"])
+
+    def test_unfinished_sessions_are_recovered_as_interrupted(self):
+        with tempfile.TemporaryDirectory() as directory:
+            c = config(directory)
+            path = Path(c.storage_path)
+            path.parent.mkdir(parents=True, exist_ok=True)
+            with sqlite3.connect(path) as db:
+                from backend.storage import SCHEMA
+                db.executescript(SCHEMA)
+                db.execute("INSERT INTO sessions(id,mode,activity,started_utc,status,complete) VALUES('old','simulation','training','now','running',0)")
+                db.commit()
+            store = __import__("backend.storage", fromlist=["Store"]).Store(c)
+            store.close()
+            db = sqlite3.connect(path)
+            try:
+                self.assertEqual(db.execute("SELECT status,end_reason FROM sessions WHERE id='old'").fetchone(), ("aborted", "process_restart"))
+            finally:
+                db.close()
+
+
+if __name__ == "__main__":
+    unittest.main()

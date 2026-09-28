@@ -1,0 +1,9 @@
+{
+  "private": true,
+  "name": "focus-browser-acceptance",
+  "scripts": {
+    "test:browser": "node tools/test_web_browser.cjs",
+    "test:soak": "node tools/soak_web.cjs"
+  },
+  "devDependencies": {"playwright": "1.62.1"}
+}
