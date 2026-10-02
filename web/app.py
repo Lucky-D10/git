@@ -25,7 +25,7 @@ OPTIONS = {"activity", "duration", "distance", "players", "references", "binding
 def create_app(service, lease=None, port=8000):
     lease = lease or service.operator or OperatorLease(service.config.operator_timeout)
     service.operator = lease
-    app = FastAPI(title="Focus Local", version="stage3-v1", docs_url=None, redoc_url=None)
+    app = FastAPI(title="Focus Local", version="youth-ui-v2", docs_url=None, redoc_url=None)
     app.state.service, app.state.lease = service, lease
     app.add_middleware(TrustedHostMiddleware, allowed_hosts=["127.0.0.1", "localhost", "testserver"])
     origins = {f"http://127.0.0.1:{port}", f"http://localhost:{port}"}
@@ -78,6 +78,47 @@ def create_app(service, lease=None, port=8000):
         if not token:
             raise HTTPException(409, "operator_busy_or_disconnected")
         return {"ok": True, "token": token}
+
+    @app.get("/api/preferences")
+    def preferences():
+        from .preferences import preferences
+        return {"ok": True, "preset": preferences(service.store.path)}
+
+    @app.get("/api/players")
+    def players():
+        from .preferences import players
+        return {"ok": True, "players": players(service.store.path)}
+
+    def settings_access(payload):
+        if not lease.authorized(payload.get("token")):
+            raise HTTPException(403, "operator_required")
+        s = current()
+        if s["state"] not in ("preparing", "finished", "aborted") or s["safety"] != "inhibited":
+            raise HTTPException(409, "settings_locked_during_session")
+        if not s["storage"]["healthy"]:
+            raise HTTPException(503, "storage_write_failed")
+
+    @app.post("/api/preferences")
+    def save_preferences(payload: dict):
+        from .preferences import save_preset
+        settings_access(payload)
+        try:
+            return {"ok": True, "preset": save_preset(service.store.path, payload.get("preset", {}))}
+        except (ValueError, TypeError) as exc:
+            raise HTTPException(400, str(exc))
+        except sqlite3.Error:
+            raise HTTPException(503, "storage_write_failed")
+
+    @app.post("/api/players")
+    def save_player(payload: dict):
+        from .preferences import save_player
+        settings_access(payload)
+        try:
+            return {"ok": True, "player": save_player(service.store.path, payload.get("player", {}))}
+        except (ValueError, TypeError) as exc:
+            raise HTTPException(400, str(exc))
+        except sqlite3.Error:
+            raise HTTPException(503, "storage_write_failed")
 
     @app.post("/api/control/release")
     def release(payload: dict):
@@ -139,7 +180,7 @@ def create_app(service, lease=None, port=8000):
     @app.get("/api/maintenance")
     def maintenance():
         from app import environment
-        return {"ok": True, "version": "stage3-v1", "environment": environment(),
+        return {"ok": True, "version": "youth-ui-v2", "environment": environment(),
                 "config": service.config.snapshot(), "snapshot": current(),
                 "diagnostics_note": "只读采集状态；运行中不另开串口。需要独立诊断时先停止服务。"}
 

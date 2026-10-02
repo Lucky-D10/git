@@ -333,12 +333,18 @@ class Engine:
         players = []
         for i, lane in enumerate(self.lanes, 1):
             row = asdict(lane)
+            _, bonus = self._base_bonus(lane)
+            boost_active = (self.activity == "racing" and self.state == "running"
+                            and self.safety == "allowed" and lane.finish_time is None and bonus > 0)
+            row.update(boost_active=boost_active,
+                       boost_progress=min(1.0, max(0.0, lane.streak / self.config.reward_seconds)) if boost_active else 0.0)
             row.update(player=i, stable_ratio=100 * lane.target_seconds / lane.valid_seconds if lane.valid_seconds else None,
                        average=lane.total / lane.sample_count if lane.sample_count >= 2 else None,
                        trend=lane.last_value - lane.first_value if lane.sample_count >= 2 else None,
                        data_status="ok" if lane.sample_count >= 2 else "暂无足够数据")
             players.append(row)
         return {"session_id": self.session_id, "algorithm": ALGORITHM_VERSION, "mode": self.config.mode,
+                "attention_thresholds": [self.config.start_threshold, self.config.high_focus_threshold],
                 "activity": self.activity, "state": self.state, "safety": self.safety, "reason": self.reason,
                 "elapsed": self.elapsed, "duration": self.duration, "distance": self.distance,
                 "countdown": max(0, math.ceil(self.countdown_end - self.now)) if self.state == "countdown" else 0,

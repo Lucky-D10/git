@@ -59,6 +59,7 @@ class BackendService:
         self.store = Store(config)
         self.frames = queue.Queue(config.storage_queue_size)
         self.intents = queue.Queue(32)
+        self.urgent = queue.Queue(8)
         self.view_lock = threading.RLock()
         self.stop_event = threading.Event()
         self.started, self.failed = False, None
@@ -113,7 +114,8 @@ class BackendService:
         if self.stop_event.is_set():
             return False
         try:
-            self.intents.put_nowait((action, session_id or self.session_id, safe_json(options), None))
+            target = self.urgent if action == "emergency" else self.intents
+            target.put_nowait((action, session_id or self.session_id, safe_json(options), None))
             return True
         except queue.Full:
             self.failed = "intent_queue_overflow"
@@ -126,7 +128,11 @@ class BackendService:
         try:
             if self.stop_event.is_set():
                 raise RuntimeError("stopping")
-            self.intents.put_nowait((action, session_id, safe_json(options), envelope))
+            if action == "emergency" and self.operator is not None and not self.operator.authorized(token):
+                future.set_result({"ok": False, "reason": "operator_required", "request_id": request_id})
+                return future
+            target = self.urgent if action == "emergency" else self.intents
+            target.put_nowait((action, session_id, safe_json(options), envelope))
         except (queue.Full, RuntimeError):
             future.set_result({"ok": False, "reason": "service_busy", "request_id": request_id})
         return future
@@ -247,6 +253,12 @@ class BackendService:
                 self._publish_view()
 
     def step(self, now):
+        urgent_count = self.urgent.qsize()
+        for _ in range(urgent_count):
+            self._command(*self.urgent.get_nowait())
+        emergency_barrier = bool(urgent_count and self.engine.safety == "emergency_locked")
+        if emergency_barrier:
+            self._output()
         if self.operator is not None and (not self.operator.alive() or self.operator.generation != self.operator_generation) and self.engine.state in ("running", "countdown"):
             self._intent("operator_lost", self.session_id, {})
         active = self.engine.state not in TERMINAL
@@ -280,7 +292,7 @@ class BackendService:
             self._advance(now - self.epoch)
         for _ in range(self.intents.qsize()):
             action, sid, options, envelope = self.intents.get_nowait()
-            self._command(action, sid, options, envelope)
+            self._command(action, sid, options, envelope, emergency_barrier)
         result = self._output()
         if result:
             self._intent("fault", self.session_id, {"reason": str(result)})
@@ -295,7 +307,7 @@ class BackendService:
                 self.chart_identity[i] = identity
         self._publish_view()
 
-    def _command(self, action, sid, options, envelope):
+    def _command(self, action, sid, options, envelope, emergency_barrier=False):
         fingerprint = json.dumps([action, sid, options], sort_keys=True)
         request_id, token, future = envelope if envelope else (None, None, None)
         key = (token, request_id)
@@ -309,6 +321,9 @@ class BackendService:
         ok = False
         if envelope and self.operator is not None and not self.operator.authorized(token):
             reason = "operator_required"
+        elif emergency_barrier and action != "emergency":
+            reason = "superseded_by_emergency"
+            self.engine.event("intent_rejected", action=action, reason=reason)
         elif envelope and token == self.receipt_owner and self.owner_requests >= 1024 and action not in ("end", "emergency"):
             reason = "operation_limit_release_and_reclaim"
         elif action == "prepare" and sid == self.session_id and self.engine.state in ("preparing", "finished", "aborted") and self.engine.safety == "inhibited" and not self.incomplete:

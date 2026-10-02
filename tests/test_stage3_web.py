@@ -76,9 +76,41 @@ class WebContractTests(unittest.TestCase):
         html = Path("web/static/index.html").read_text(encoding="utf-8")
         script = Path("web/static/app.js").read_text(encoding="utf-8")
         self.assertIn("/static/echarts.min.js", html)
-        self.assertIn("setOption", script)
+        self.assertIn('type="module" src="/static/app.js"', html)
+        self.assertIn("setOption", Path("web/static/js/charts.js").read_text(encoding="utf-8"))
         self.assertNotIn("http://", html + script)
         self.assertNotIn("https://", html + script)
+
+    def test_emergency_bypasses_full_queue_and_cancels_queued_reset(self):
+        from backend.replay import replay_session
+        token = self.lease.claim()
+        sid = self.service.session_id
+        outputs = []
+        self.service.output = lambda state: outputs.append(state)
+        for lane in (1, 2):
+            self.service.submit_frame(self.frame(lane))
+        self.service.request("start", "start", sid, token)
+        self.step(.01)
+        self.step(.2)
+        self.assertEqual(self.service.engine.state, "running")
+        queued = [self.service.request(str(i), "reset", sid, token, confirmed=True) for i in range(32)]
+        stop = self.service.request("urgent", "emergency", sid, token)
+        self.service.submit_frame(self.frame(1, 2))
+        outputs.clear()
+        self.step(.25)
+        self.assertTrue(stop.result()["ok"])
+        self.assertEqual(self.service.engine.safety, "emergency_locked")
+        self.assertTrue(all(f.result()["reason"] == "superseded_by_emergency" for f in queued))
+        self.assertTrue(outputs)
+        self.assertTrue(all(p["power"] == 0 for s in outputs for p in s["players"]))
+        self.service.stop()
+        self.assertTrue(replay_session(self.service.store.path, sid)["matched"])
+
+    def test_unauthorized_emergency_cannot_fill_priority_queue(self):
+        for i in range(16):
+            result = self.service.request(str(i), "emergency", self.service.session_id, "wrong")
+            self.assertEqual(result.result()["reason"], "operator_required")
+        self.assertEqual(self.service.urgent.qsize(), 0)
 
     def test_new_operator_does_not_hide_expired_previous_operator(self):
         token = self.lease.claim()

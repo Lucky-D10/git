@@ -4,6 +4,16 @@
 
 ## 快速开始
 
+青少年版 Web 页面：
+
+```powershell
+.venv/Scripts/python app.py web --mode simulation
+```
+
+打开 `http://127.0.0.1:8000`，在首页选择专注训练（单人/双人）或小车竞速。新版包含大仪表盘、短曲线、虚拟赛道、成长记录、昵称和老师预设。完整流程、统计口径和回退说明见 [青少年界面说明](docs/youth-ui-v2.md)。
+
+按完整设计稿逐页协调的更新范围、屏幕适配与验证记录见 [设计稿对齐说明](docs/design-alignment.md)。
+
 电脑演示（不接触 GPIO 或头环）需要主动选择模拟模式：
 
 ```bash
@@ -62,7 +72,7 @@ python app.py web --mode simulation
 
 后台状态、转换前置条件、三种时间尺度、样本口径、恢复策略和现场验收清单见 [docs/stage2-backend.md](docs/stage2-backend.md)。两个 Tk 文件现在是共享后台面板的启动壳；改造期间的原始大界面保存在 `backups/`，便于回退。
 
-第三阶段 Web 应用已通过本机 HTTP/WebSocket 和 800×480 浏览器流程验证。运行 `.venv/Scripts/python app.py web --mode simulation`，访问 `http://127.0.0.1:8000`；先点击“成为操作端”，再准备并开始。官方 ECharts 资源全部本地化。接口、安装、systemd/kiosk、维护和回退说明见 [docs/stage3-web.md](docs/stage3-web.md)，实际验收范围见 [docs/stage3-validation.md](docs/stage3-validation.md)。
+第三阶段 Web 应用已通过本机 HTTP/WebSocket 和 800×480 浏览器流程验证。运行 `.venv/Scripts/python app.py web --mode simulation`，访问 `http://127.0.0.1:8000`；选择活动后按步骤准备并开始。刷新后须点击“接管操作”再手动继续。官方 ECharts 资源全部本地化。接口、安装、systemd/kiosk、维护和回退说明见 [docs/stage3-web.md](docs/stage3-web.md)，新版实际验收范围见 [docs/youth-ui-v2-validation.md](docs/youth-ui-v2-validation.md)。
 
 ## 测试
 

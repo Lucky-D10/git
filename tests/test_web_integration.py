@@ -103,6 +103,37 @@ class WebIntegrationTests(unittest.TestCase):
             self.assertIn("lane,device",self.client.get(exported["files"][1]).text)
             self.assertEqual(self.client.get("/api/sessions?player_id=local-1").status_code,200)
 
+    def test_teacher_preferences_persist_and_do_not_change_current_rules(self):
+        from web.preferences import preferences, players
+        original = self.service.engine.duration
+        preset = self.client.get("/api/preferences").json()["preset"]
+        preset.update(duration=120, references=[45, 65], reduced_motion=True)
+        self.assertEqual(self.post("/api/preferences", {"preset": preset}).status_code, 403)
+        with self.client.websocket_connect("/ws", headers={"Origin": self.headers["Origin"]}) as ws:
+            token = self.operator(ws)
+            result = self.post("/api/preferences", {"token": token, "preset": preset})
+            self.assertEqual(result.status_code, 200, result.text)
+            self.assertEqual(preferences(self.service.store.path), preset)
+            self.assertEqual(self.service.engine.duration, original)
+            player = {"id": "local-1", "nickname": "蓝色伙伴", "avatar": "leaf"}
+            result = self.post("/api/players", {"token": token, "player": player})
+            self.assertEqual(result.status_code, 200, result.text)
+            self.assertIn(player, players(self.service.store.path))
+            self.assertEqual(self.post("/api/preferences", {"token": token, "preset": {**preset, "bindings": [1, 1]}}).status_code, 400)
+            self.assertEqual(self.post("/api/players", {"token": token, "player": {**player, "nickname": " "}}).status_code, 400)
+            self.wait_for(lambda: self.service.snapshot()["players"][0]["valid"])
+            self.assertTrue(self.command(token, "start")["ok"])
+            self.assertEqual(self.post("/api/preferences", {"token": token, "preset": preset}).status_code, 409)
+            self.assertEqual(self.post("/api/players", {"token": token, "player": player}).status_code, 409)
+        self.service.stop()
+        reopened = BackendService(self.config)
+        try:
+            self.assertEqual(preferences(reopened.store.path), preset)
+            self.assertIn(player, players(reopened.store.path))
+            self.assertEqual(reopened.engine.safety, "inhibited")
+        finally:
+            reopened.stop()
+
     def test_disconnect_revokes_and_never_resumes_automatically(self):
         with self.client.websocket_connect("/ws",headers={"Origin":self.headers["Origin"]}) as ws:
             token=self.operator(ws)

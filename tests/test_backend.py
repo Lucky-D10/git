@@ -24,6 +24,44 @@ def normal(engine, lane, seq, raw=80, t=None):
 
 
 class EngineTests(unittest.TestCase):
+    def test_snapshot_exposes_session_thresholds_for_display(self):
+        c = config(tempfile.mkdtemp(), start_threshold=25, high_focus_threshold=80)
+        e = Engine(c, "display-thresholds", "training", references=[10, 90])
+        self.assertEqual(e.snapshot()["attention_thresholds"], [25, 80])
+        self.assertEqual([p["reference"] for p in e.snapshot()["players"]], [10, 90])
+
+    def test_race_boost_tracks_threshold_hold_and_interruptions(self):
+        c = config(tempfile.mkdtemp(), data_timeout=20, reward_seconds=2,
+                   high_focus_threshold=75)
+        e = Engine(c, "boost", "racing", distance=1000)
+        normal(e, 1, 1, 75); normal(e, 2, 1, 60)
+        e.intent("start", "boost"); e.advance(.1)
+        first, second = e.snapshot()["players"]
+        self.assertTrue(first["boost_active"])
+        self.assertEqual(first["boost_progress"], 0)
+        self.assertGreater(second["power"], 0)
+        self.assertFalse(second["boost_active"])
+        e.advance(1.1)
+        self.assertAlmostEqual(e.snapshot()["players"][0]["boost_progress"], .5)
+        e.advance(3.1)
+        self.assertEqual(e.snapshot()["players"][0]["boost_progress"], 1)
+        normal(e, 1, 2, 74)
+        self.assertFalse(e.snapshot()["players"][0]["boost_active"])
+        self.assertEqual(e.snapshot()["players"][0]["boost_progress"], 0)
+        normal(e, 1, 3, 100)
+        self.assertFalse(e.snapshot()["players"][0]["boost_active"], "smoothed value must also qualify")
+        e.advance(4.1); normal(e, 1, 4, 100)
+        self.assertTrue(e.snapshot()["players"][0]["boost_active"])
+        self.assertEqual(e.snapshot()["players"][0]["boost_progress"], 0)
+        e.advance(4.6)
+        self.assertAlmostEqual(e.snapshot()["players"][0]["boost_progress"], .25)
+        e.intent("pause", "boost")
+        self.assertFalse(e.snapshot()["players"][0]["boost_active"])
+        e.intent("resume", "boost"); e.advance(4.7)
+        self.assertEqual(e.snapshot()["players"][0]["boost_progress"], 0)
+        e.advance(25)
+        self.assertFalse(e.snapshot()["players"][0]["boost_active"])
+
     def test_start_pause_resume_and_stale_session_intent_are_headless(self):
         c = config(tempfile.mkdtemp())
         e = Engine(c, "s1", "training", duration=2)

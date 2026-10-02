@@ -1,0 +1,56 @@
+<!doctype html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>FOCUS · 完整流程与页面设计</title><style>
+:root{font-family:system-ui,'Microsoft YaHei',sans-serif;color:#173350;background:#eff6fd}
+*{box-sizing:border-box}
+body{margin:0}
+a{color:#126acf;text-decoration:none}
+button{font:inherit}
+header{background:#ffffffee;border-bottom:1px solid #d4e3f1;padding:18px 5%;display:flex;align-items:center;justify-content:space-between;gap:20px}
+header strong{font-size:24px;color:#103e74}
+.pill{background:#fff0c8;color:#805c12;padding:8px 13px;border-radius:25px;font-size:14px}
+main{max-width:1240px;margin:0 auto;padding:42px 24px}
+h1{font-size:clamp(28px,4vw,46px);margin:12px 0}
+h2{font-size:26px;margin:0}
+p{line-height:1.75;color:#58718a}
+.eyebrow{font-size:12px;letter-spacing:2px;color:#367bc8;margin:0 0 7px}
+.intro{max-width:800px}
+.nav{display:flex;flex-wrap:wrap;gap:10px;margin:24px 0 34px}
+.nav a,.button{background:#fff;border:1px solid #c7dced;border-radius:10px;min-height:44px;padding:11px 16px;display:inline-flex;align-items:center}
+.nav a:hover,.button:hover{border-color:#2189ff;background:#eaf5ff}
+.board{background:white;border:1px solid #d9e5ef;border-radius:20px;padding:22px;margin:25px 0 42px;scroll-margin-top:18px;box-shadow:0 10px 35px #16395d07}
+.section-head{display:flex;justify-content:space-between;align-items:center;gap:16px;margin-bottom:18px}
+.image-button{display:block;width:100%;border:0;padding:0;background:#eaf3fc;border-radius:14px;overflow:hidden;cursor:zoom-in}
+img{display:block;width:100%;height:auto}
+.page-list{padding:0;list-style:none;display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:0}
+.page-list li{font-size:14px;line-height:1.7;color:#58718a}
+.page-list b{color:#173350;margin-right:5px}
+.flow{width:100%;height:auto;border:0;border-radius:14px;aspect-ratio:1440/1240}
+.notes{padding:24px;border-left:4px solid #258bff;background:#e5f1fd;border-radius:0 16px 16px 0;line-height:1.9;color:#45627e}
+.notes ul{padding-left:22px;margin:8px 0}
+footer{font-size:14px;color:#58718a;padding:28px 0}
+dialog{width:96vw;max-width:1800px;max-height:95vh;border:0;border-radius:16px;padding:15px;overflow:auto;background:#f3f8fd}
+dialog::backdrop{background:#0b254be0}
+dialog .section-head{position:sticky;top:-15px;background:#f3f8fdf0;padding:10px 0;z-index:1}
+dialog h2{font-size:20px}
+dialog button{cursor:pointer}
+dialog img{width:100%}
+body:has(dialog[open]){overflow:hidden}
+@media(max-width:700px){main{padding:25px 12px}
+.board{padding:12px;border-radius:14px}
+.page-list{grid-template-columns:1fr 1fr}
+.section-head{align-items:start}
+h2{font-size:21px}
+header{padding:14px 16px}
+.pill{font-size:12px}
+.button{padding:9px 11px;font-size:14px}
+}
+@media print{header,.nav,dialog{display:none}
+.board{break-inside:avoid;box-shadow:none}
+main{padding:0}
+.image-button{border:0}
+.flow{height:850px}
+.button{display:none}
+}
+
+</style></head><body><header><strong>◉ FOCUS / DESIGN</strong><span class="pill">视觉概念稿 · 非运行界面</span></header><main><p class="eyebrow">YOUTH EXPERIENCE / V2</p><h1>从开始到成果，每一步都看得懂。</h1><p class="intro">完整流程总图 + 24 个页面与状态样图。延续蓝橙配色、明亮卡片和大触摸按钮，覆盖单人训练、双人训练、双人竞速，以及准备、异常、成果和教师管理。点击任意样图放大；所有资源可离线浏览。</p><nav class="nav"><a href="#flow">完整流程图</a><a href="#01-entry">01 首页与模式选择</a><a href="#02-ready">02 设备准备与开始</a><a href="#03-play">03 训练与竞速</a><a href="#04-states">04 暂停、断连与安全</a><a href="#05-results">05 成果与报告状态</a><a href="#06-teacher">06 历史、教师与维护</a></nav><section id="flow" class="board"><div class="section-head"><div><p class="eyebrow">00 / USER FLOW</p><h2>完整页面流程图</h2></div><a class="button" href="flow.svg" target="_blank">放大流程图 ↗</a></div><object class="flow" data="flow.svg" type="image/svg+xml" aria-label="完整页面流程图"><a href="flow.svg">打开流程图</a></object><p>箭头表达主要导航路径；暂停、断连、急停适用于游戏过程。样图上的编号可在下方逐项对照。</p></section><section id="01-entry" class="board"><div class="section-head"><div><p class="eyebrow">01 / DESIGN BOARD</p><h2>首页与模式选择</h2></div><a class="button" href="01-entry.png" target="_blank">打开原图 ↗</a></div><button class="image-button" data-image="01-entry.png" data-title="首页与模式选择" aria-label="放大首页与模式选择"><img src="01-entry.png" alt="首页与模式选择：正在启动、首页、选择训练人数、确认玩家" loading="lazy"></button><ul class="page-list"><li><b>A01</b> 正在启动</li><li><b>A02</b> 首页</li><li><b>A03</b> 选择训练人数</li><li><b>A04</b> 确认玩家</li></ul></section><section id="02-ready" class="board"><div class="section-head"><div><p class="eyebrow">02 / DESIGN BOARD</p><h2>设备准备与开始</h2></div><a class="button" href="02-ready.png" target="_blank">打开原图 ↗</a></div><button class="image-button" data-image="02-ready.png" data-title="设备准备与开始" aria-label="放大设备准备与开始"><img src="02-ready.png" alt="设备准备与开始：单人准备、双人准备、训练倒计时、竞速倒计时" loading="lazy"></button><ul class="page-list"><li><b>B01</b> 单人准备</li><li><b>B02</b> 双人准备</li><li><b>B03</b> 训练倒计时</li><li><b>B04</b> 竞速倒计时</li></ul></section><section id="03-play" class="board"><div class="section-head"><div><p class="eyebrow">03 / DESIGN BOARD</p><h2>训练与竞速</h2></div><a class="button" href="03-play.png" target="_blank">打开原图 ↗</a></div><button class="image-button" data-image="03-play.png" data-title="训练与竞速" aria-label="放大训练与竞速"><img src="03-play.png" alt="训练与竞速：单人训练、双人训练、双人竞速、结束确认" loading="lazy"></button><ul class="page-list"><li><b>C01</b> 单人训练</li><li><b>C02</b> 双人训练</li><li><b>C03</b> 双人竞速</li><li><b>C04</b> 结束确认</li></ul></section><section id="04-states" class="board"><div class="section-head"><div><p class="eyebrow">04 / DESIGN BOARD</p><h2>暂停、断连与安全</h2></div><a class="button" href="04-states.png" target="_blank">打开原图 ↗</a></div><button class="image-button" data-image="04-states.png" data-title="暂停、断连与安全" aria-label="放大暂停、断连与安全"><img src="04-states.png" alt="暂停、断连与安全：暂停、单路信号中断、页面连接中断、急停锁定" loading="lazy"></button><ul class="page-list"><li><b>D01</b> 暂停</li><li><b>D02</b> 单路信号中断</li><li><b>D03</b> 页面连接中断</li><li><b>D04</b> 急停锁定</li></ul></section><section id="05-results" class="board"><div class="section-head"><div><p class="eyebrow">05 / DESIGN BOARD</p><h2>成果与报告状态</h2></div><a class="button" href="05-results.png" target="_blank">打开原图 ↗</a></div><button class="image-button" data-image="05-results.png" data-title="成果与报告状态" aria-label="放大成果与报告状态"><img src="05-results.png" alt="成果与报告状态：单人成果、双人成果、竞速结果、报告状态" loading="lazy"></button><ul class="page-list"><li><b>E01</b> 单人成果</li><li><b>E02</b> 双人成果</li><li><b>E03</b> 竞速结果</li><li><b>E04</b> 报告状态</li></ul></section><section id="06-teacher" class="board"><div class="section-head"><div><p class="eyebrow">06 / DESIGN BOARD</p><h2>历史、教师与维护</h2></div><a class="button" href="06-teacher.png" target="_blank">打开原图 ↗</a></div><button class="image-button" data-image="06-teacher.png" data-title="历史、教师与维护" aria-label="放大历史、教师与维护"><img src="06-teacher.png" alt="历史、教师与维护：我的记录、详细报告、教师设置、系统维护" loading="lazy"></button><ul class="page-list"><li><b>F01</b> 我的记录</li><li><b>F02</b> 详细报告</li><li><b>F03</b> 教师设置</li><li><b>F04</b> 系统维护</li></ul></section><aside class="notes"><b>从设计稿到程序实现时，需要保持的规则</b><ul><li>单人和双人训练均保留；双人训练不默认判胜负，竞速才展示比赛结果。</li><li>模拟体验始终有标识；虚拟车辆位置不代表实体小车的传感器实测位置。</li><li>仪表盘、目标区和车辆位置按后台数值精确绘制，生成图中的刻度只作视觉参考。</li><li>断连是无效数据，不显示为零分；页面失联不能宣称已确认硬件停止，重连不自动恢复动力。</li><li>普通结束需要确认；急停立即提交，不增加确认弹窗。复位后仍需准备和重新开始。</li><li>样本不足和保存失败是两种独立状态；成果页不得将不完整记录标为保存成功。</li><li>所有示例数值、昵称和记录均为设计演示；教师设置、维护入口及细节以最终接口实现为准。</li></ul></aside><footer>使用内置 image_gen 生成 6 组视觉稿；流程图以可编辑 SVG 编写。<a href="prompts.json">完整生成提示词</a> · <a href="README.md">页面清单与设计说明</a></footer></main><dialog id="viewer"><div class="section-head"><h2 id="viewer-title"></h2><button class="button" id="close">关闭 ✕</button></div><img id="viewer-image" alt=""></dialog><script>
+const viewer=document.getElementById('viewer');document.querySelectorAll('[data-image]').forEach(button=>button.addEventListener('click',()=>{document.getElementById('viewer-title').textContent=button.dataset.title;const image=document.getElementById('viewer-image');image.src=button.dataset.image;image.alt=button.dataset.title;viewer.showModal()}));document.getElementById('close').addEventListener('click',()=>viewer.close());viewer.addEventListener('click',event=>{if(event.target===viewer)viewer.close()});
+</script></body></html>

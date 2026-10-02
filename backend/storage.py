@@ -23,6 +23,8 @@ def utc_now():
 
 SCHEMA = """
 CREATE TABLE IF NOT EXISTS players(id TEXT PRIMARY KEY, nickname TEXT);
+CREATE TABLE IF NOT EXISTS player_profiles(player_id TEXT PRIMARY KEY REFERENCES players(id), avatar TEXT NOT NULL DEFAULT 'wave');
+CREATE TABLE IF NOT EXISTS application_settings(key TEXT PRIMARY KEY, json TEXT);
 CREATE TABLE IF NOT EXISTS sessions(id TEXT PRIMARY KEY, mode TEXT, activity TEXT,
  started_utc TEXT, ended_utc TEXT, status TEXT, end_reason TEXT, complete INTEGER DEFAULT 0);
 CREATE TABLE IF NOT EXISTS participants(session_id TEXT REFERENCES sessions(id), lane INTEGER,

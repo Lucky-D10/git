@@ -28,6 +28,8 @@ def history_rows(path, player_id=None, date_from=None, date_to=None, condition=N
                 continue
             metadata = json.loads(metadata[0])
             row["condition"] = conditions(metadata)
+            row["settings"] = {k: metadata.get(k) for k in ("duration", "distance", "references")}
+            row["settings"]["session_kind"] = metadata["config"]["session_kind"]
             if condition and row["condition"] != condition:
                 continue
             row["players"] = [{"player_id": pid, **json.loads(stats)} for pid, stats in db.execute(
@@ -66,7 +68,8 @@ def report_data(path, sid):
         metadata = json.loads(db.execute("SELECT json FROM configs WHERE session_id=?", (sid,)).fetchone()[0])
         events = [json.loads(row[0]) for row in db.execute("SELECT details FROM events WHERE session_id=? ORDER BY t,id", (sid,))]
         samples = [json.loads(row[0]) for row in db.execute("SELECT facts FROM samples WHERE session_id=? ORDER BY t,id", (sid,))]
-    report.update(config=metadata, events=events, condition=conditions(metadata), charts=[], measurement_note="虚拟赛程；原始 Attention 为设备样本。按各自接收时间绘图，不按行号对齐。")
+    source = "模拟样本" if metadata["config"]["mode"] == "simulation" else "设备样本"
+    report.update(config=metadata, events=events, condition=conditions(metadata), charts=[], measurement_note=f"原始 Attention 来自{source}。按各自接收时间绘图，不按行号对齐；竞速位置为虚拟赛程。")
     end = report["base"].get("now", 0)
     timeline = []
     for event in events:
