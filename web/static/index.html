@@ -1,6 +1,8 @@
 <!doctype html>
-<html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#edf5fc"><title>Focus · 专注时光</title><link rel="stylesheet" href="/static/style.css"><link rel="stylesheet" href="/static/design-match.css"><link rel="stylesheet" href="/static/play-design.css"></head>
+<html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#edf5fc"><title>Focus · 专注时光</title><link rel="stylesheet" href="/static/style.css"><link rel="stylesheet" href="/static/design-match.css"><link rel="stylesheet" href="/static/play-design.css"><link rel="stylesheet" href="/static/layout.css"></head>
 <body>
+<div id="app-frame" class="app-frame">
+<div id="app-shell" class="app-shell">
 <header class="app-header"><a href="#home" class="brand"><span data-icon="brain"></span> FOCUS</a><span class="header-divider"></span><span id="page-title">专注时光</span><span id="mode" class="mode-pill">连接中</span><span id="connection" class="connection-label">等待后台</span><button id="claim" class="small-button">接管操作</button></header>
 <div id="notice" class="toast" role="status" hidden></div>
 <main id="main">
@@ -24,7 +26,7 @@
  <div class="page-heading"><button id="report-back" class="back-button">← 返回总结</button><h1>练习详情</h1><select id="report-player" aria-label="查看玩家"></select></div>
  <p id="detail-status" class="save-status" role="status"></p><div id="detail-metrics" class="metric-grid"></div>
  <div class="report-charts">
-  <article class="card review-card"><div class="chart-heading"><h2>全程回顾</h2><button id="review-reset" class="chart-reset">查看全程</button></div><div id="review-chart" class="chart report-chart" role="img" aria-label="原始值、平滑值和个人目标回顾曲线"></div><div id="review-event-key" class="chart-event-key"></div><div id="review-summary" class="review-summary"></div></article>
+  <article class="card review-card"><div class="chart-heading"><h2>全程回顾</h2><button id="review-reset" class="chart-reset">查看全程</button></div><div id="review-chart" class="chart report-chart" role="img" aria-label="原始值、平滑值和个人目标回顾曲线"></div><p class="report-nav-caption"><strong>时间范围</strong><span>拖动两端，选择要查看的时间段</span></p><div id="review-event-key" class="chart-event-key"></div><div id="review-summary" class="review-summary"></div></article>
   <div class="report-secondary"><article class="card" id="distribution-details"><div class="chart-heading"><h2>读数时间分布</h2><small>原始值 · 仅有效时长</small></div><div id="distribution-chart" class="chart report-chart" role="img" aria-label="五个读数区间的有效时长与占比"></div><p id="distribution-note" class="chart-note"></p></article><article class="card report-insight"><span data-icon="leaf"></span><h2>读懂这次练习</h2><p id="report-insight"></p><p class="chart-note">浅线是原始读数，深线是平滑反馈；虚线是个人目标。拖动图表下方滑块可查看某一段。</p><p class="chart-note">暂停用灰色区间、缺测用浅红色区间表示；缺测不连线，也不累计有效时长。</p></article></div>
  </div>
  <details class="card"><summary>查看统计口径与过程事件</summary><p>达标时长与连续达标按原始有效样本累计，仪表盘显示平滑反馈。暂停及缺测不计入有效时长。各路按实际时间绘制，缺测显示断点。</p><div id="report-events"></div></details><div class="page-actions"><span id="downloads"></span><button id="export" class="primary">导出本次数据</button></div>
@@ -42,5 +44,7 @@
 </main>
 <div id="connection-overlay" class="connection-overlay" hidden><div class="overlay-card"><span data-icon="signal"></span><h2 id="connection-title">正在连接专注时光</h2><p id="connection-text">请稍候，正在检查本地服务。</p><p class="fine-print">失联时后台会停止输出；重连后需要主动接管并继续。</p><button id="retry-connection" class="primary">重新连接</button></div></div>
 <dialog id="confirm"><div id="confirm-icon" class="dialog-icon" data-icon="info"></div><h2 id="confirm-title">确认操作</h2><p id="confirm-text"></p><div class="dialog-actions"><button id="confirm-no">再想一想</button><button id="confirm-yes" class="primary">确认</button></div><button id="dialog-emergency" data-action="emergency" class="text-danger">需要立即停止？急停</button></dialog>
+</div>
+</div>
 <script src="/static/echarts.min.js"></script><script type="module" src="/static/app.js"></script>
 </body></html>

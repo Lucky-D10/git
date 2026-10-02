@@ -1,9 +1,11 @@
+import './js/layout.js';
 import {$,escapeHtml as esc,finite,number,clock,duration,icon,avatar,headband,describe,setText,setHtml} from './js/ui.js';
 import {Connection,api} from './js/connection.js';
 import * as plots from './js/charts.js';
 import {Race,car} from './js/race.js';
 import {portrait,calmArt} from './js/illustrations.js';
 import {dialArt,award,steps} from './js/design.js';
+import {deviceView} from './js/device-state.js';
 
 const client=new Connection();
 let page='home',routeEpoch=0,reportId='',report=null,reportRetry,noticeTimer,layoutKey='',plotKey='',race=null,historyRows=[],profileId='local-1';
@@ -94,15 +96,17 @@ function route(){
 }
 function renderPlayerSelectors(){
  const n=draft.players;const node=$('player-selectors');node.classList.toggle('single',n===1);
- setHtml('player-selectors',Array.from({length:n},(_,i)=>'<article class="card player-select-card '+(i?'orange':'blue')+'"><div class="player-heading">'+avatar(i?'star':'wave',i)+'<div><h2>'+(i?'橙色玩家':'蓝色玩家')+'</h2><small>头环 '+preset.bindings[i]+' · 个人目标 '+preset.references[i]+'</small></div></div>'+portrait(i)+'<label><span class="sr-only">选择昵称</span><select id="draft-player-'+i+'" aria-label="玩家 '+(i+1)+'">'+profiles.map(p=>'<option value="'+esc(p.id)+'" '+(p.id===draft.player_ids[i]?'selected':'')+'>'+esc(p.nickname)+'</option>').join('')+'</select></label></article>').join(''));
- for(let i=0;i<n;i++)$('draft-player-'+i).onchange=e=>draft.player_ids[i]=e.target.value;
+ setHtml('player-selectors',Array.from({length:n},(_,i)=>'<article class="card player-select-card '+(i?'orange':'blue')+'"><div class="player-heading">'+'<span id="draft-avatar-'+i+'" class="player-badge">'+avatar(profile(draft.player_ids[i]).avatar,i)+'</span><div><h2>'+(i?'橙色玩家':'蓝色玩家')+'</h2><small>头环 '+preset.bindings[i]+' · 个人目标 '+preset.references[i]+'</small></div></div>'+portrait(i)+'<label><span class="sr-only">选择昵称</span><select id="draft-player-'+i+'" aria-label="玩家 '+(i+1)+'">'+profiles.map(p=>'<option value="'+esc(p.id)+'" '+(p.id===draft.player_ids[i]?'selected':'')+'>'+esc(p.nickname)+'</option>').join('')+'</select></label></article>').join(''));
+ for(let i=0;i<n;i++)$('draft-player-'+i).onchange=e=>{draft.player_ids[i]=e.target.value;setHtml('draft-avatar-'+i,avatar(profile(e.target.value).avatar,i));};
  setText('draft-summary',(draft.activity==='racing'?'双人虚拟竞速':n===1?'单人训练':'双人训练')+' · '+duration(preset.duration)+' · '+(preset.session_kind==='formal'?'正式规则':'轻松体验'));
 }
 function renderDevices(s){
  $('devices').classList.toggle('single',s.players.length===1);
  setHtml('devices',s.players.map((p,i)=>{
-  const facts=[['头环连接',p.connected===true],['正确佩戴',p.worn===true],['设备校准',p.calibration==='normal'||p.valid],['收到新信号',p.valid]];
-  return '<article class="card device-card '+(i?'orange':'blue')+'"><div class="player-heading">'+avatar(profile(s.player_ids[i]).avatar,i)+'<div><h2>'+esc(playerName(s,i))+'</h2><small>头环 '+s.bindings[i]+'</small></div><span class="status-tag '+(p.valid?'':'waiting')+'">'+(p.valid?'已就绪':'准备中')+'</span></div><div class="device-body">'+headband(i)+'<div class="device-facts">'+facts.map(([label,ok])=>'<span class="'+(ok?'':'waiting')+'">'+icon(ok?'check':'clock')+label+(label==='设备校准'&&finite(p.calibration_progress)&&!p.valid?' '+Math.round(p.calibration_progress*100)+'%':'')+'</span>').join('')+'</div></div><p class="device-tip">'+esc(p.valid?'准备好了，保持轻松':describe(p.reason))+'</p></article>';
+  const view=deviceView(p,client.fresh);
+  const art='<div class="device-portrait">'+portrait(i,view.wear)+'<span class="portrait-status '+(view.ready?'complete':'')+'">'+icon(view.ready?'check':view.key==='baseline'?'clock':'info')+'</span></div>';
+  const facts='<div class="device-facts">'+view.facts.map(f=>'<span title="'+esc(f.label+'：'+f.value)+'" class="'+(f.ok?'':'waiting')+'">'+icon(f.ok?'check':'clock')+'<span>'+f.label+'<small>'+esc(f.value)+'</small></span></span>').join('')+'</div>';
+  return '<article class="card device-card '+(i?'orange':'blue')+'" data-device-state="'+view.key+'"><div class="player-heading">'+avatar(profile(s.player_ids[i]).avatar,i)+'<div><h2>'+esc(playerName(s,i))+'</h2><small>头环 '+s.bindings[i]+'</small></div><span class="status-tag '+(view.ready?'':'waiting')+'">'+(view.ready?'已就绪':esc(view.title))+'</span></div><div class="device-body">'+art+facts+'</div><div class="device-tip" role="status"><strong>'+icon(view.ready?'check':'info')+esc(view.title)+'</strong><small>'+esc(view.hint)+'</small>'+(view.key==='baseline'?'<progress aria-label="设备基线采集进度" max="100"'+(view.progress===null?'':' value="'+view.progress+'"')+'></progress>':'')+'</div></article>';
  }).join(''));
  setText('prepare-title',s.players.length===2?'两位玩家都准备好了吗？':'戴好头环，准备出发');
  setText('start',ready()?'准备好了，开始！':'等待'+s.players.map((p,i)=>p.valid?'':'玩家 '+(i+1)).filter(Boolean).join('、'));
@@ -113,12 +117,12 @@ function gaugeMarkup(i){
  return '<div id="gauge-'+i+'" class="gauge" role="img" aria-label="当前平滑读数与动态指针"></div><div class="signal-help">'+headband(i)+'<div><strong>请检查头环</strong><small id="signal-help-'+i+'"></small></div></div>';
 }
 function buildLive(s){
- const key=s.activity+':'+s.players.length;
+ const key=s.activity+':'+s.players.length+':'+s.player_ids.map(id=>id+':'+profile(id).avatar).join(',');
  if(key===layoutKey)return;
  plots.dispose(liveCharts);layoutKey=key;plotKey='';race?.stop();
  $('training-panels').hidden=s.activity==='racing';$('race-panel').hidden=s.activity!=='racing';
  if(s.activity==='racing'){race=new Race($('race-track'));return;}
- const heading=i=>'<div class="player-heading">'+avatar(i?'star':'wave',i)+'<h2 id="live-name-'+i+'"></h2><span id="live-target-'+i+'" class="target-pill"></span></div>';
+ const heading=i=>'<div class="player-heading">'+avatar(profile(s.player_ids[i]).avatar,i)+'<h2 id="live-name-'+i+'"></h2><span id="live-target-'+i+'" class="target-pill"></span></div>';
  const trend=i=>'<div class="live-chart-shell"><div class="plot-heading"><span>最近 30 秒</span><span>平滑值 · 目标区</span></div><div id="live-plot-'+i+'" class="mini-plot" role="img" aria-label="最近三十秒读数曲线，缺测显示断点"></div></div>';
  if(s.players.length===1){
   $('training-panels').innerHTML='<div class="solo-layout"><article class="solo-main blue">'+heading(0)+''+gaugeMarkup(0)+'<p class="gauge-caption" id="gauge-caption-0"></p></article><div class="solo-side"><div class="solo-summary"><div class="stat-tile"><small>'+icon('clock')+'剩余时间</small><strong id="solo-time"></strong></div><div class="stat-tile"><small>'+icon('star')+'连续达标</small><strong id="streak-0"></strong></div></div><div class="calm-card">'+calmArt()+icon('leaf')+'<strong>保持自然，继续体验</strong></div></div><article class="solo-plot">'+trend(0)+'</article></div>';

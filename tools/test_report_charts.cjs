@@ -53,7 +53,18 @@ const fs=require('fs'),path=require('path'),assert=require('assert');
   await page.evaluate(()=>{window.originalReportChart=focusDiagnostics.charts.get('review-chart');location.hash='home';});
   await page.locator('#home:visible').waitFor();await page.evaluate(()=>location.hash='report/display-report');await page.locator('#report:visible').waitFor();await check();
   assert(await page.evaluate(()=>originalReportChart===focusDiagnostics.charts.get('review-chart')),'revisiting a report reuses its chart');
-  for(const [width,height] of [[1280,800],[390,844]]){await page.setViewportSize({width,height});await check();await page.screenshot({path:path.join(out,'report-'+width+'.png'),fullPage:true});}
+  for(const [width,height] of [[1280,800],[390,844]]){
+   await page.setViewportSize({width,height});await check();await page.screenshot({path:path.join(out,'report-'+width+'.png'),fullPage:true});
+   assert.equal(await page.evaluate(()=>focusDiagnostics.charts.get('review-chart').getOption().dataZoom[1].showDataShadow),false,'range selector does not duplicate the plotted curve');
+   if(width===1280){
+    await page.locator('#review-chart').scrollIntoViewIfNeeded();
+    const box=await page.locator('#review-chart').boundingBox(),scale=await page.evaluate(()=>focusLayout.scale);
+    const x=box.x+36*scale,y=box.y+box.height-11*scale;
+    await page.mouse.move(x,y);await page.mouse.down();await page.mouse.move(x+box.width*.25,y,{steps:12});await page.mouse.up();
+    assert(await page.evaluate(()=>focusDiagnostics.charts.get('review-chart').getOption().dataZoom[0].start>5),'scaled range handles follow pointer coordinates');
+    await page.locator('#review-reset').click();
+   }
+  }
   await page.setViewportSize({width:800,height:480});await page.evaluate(()=>location.hash='history');await page.locator('#history-condition option').nth(1).waitFor({state:'attached'});await page.locator('#history-condition').selectOption('fixture');
   await page.screenshot({path:path.join(out,'history-800.png'),fullPage:true});
   for(const metric of ['stable_ratio','valid_seconds','best_streak']){

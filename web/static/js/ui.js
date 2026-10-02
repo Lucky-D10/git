@@ -10,6 +10,12 @@ export function icon(name, cls='') {return `<svg class="icon ${cls}" viewBox="0 
 export function avatar(name='wave', lane=0) {return `<span class="avatar ${lane?'orange':''}">${icon(name)}</span>`;}
 export function headband(lane=0) {return portrait(lane,true);}
 export const labels={countdown_complete:'开始体验',inhibited:'动力关闭',allowed:'允许运行',emergency_locked:'急停锁定',preparing:'准备中',countdown:'即将开始',running:'进行中',paused:'已暂停',finished:'已结束',aborted:'已中断',valid:'信号正常',not_connected:'请打开头环，等待连接',not_worn:'请调整头环，让接触点贴合',calibrating:'正在校准，请稍等',calibration_timeout:'准备时间较长，请老师检查头环',stale:'等待头环的新信号',not_ready:'还有玩家尚未准备好',illegal_state:'当前状态不允许此操作',operator_required:'请先接管操作',operator_busy_or_disconnected:'另一个页面正在操作，本页可以观看',operator_heartbeat_timeout:'操作页面失联，训练已暂停',stale_session:'本场已变化，请返回当前会话',unverified_identity:'设备更新标识待确认，请老师检查',all_signals_lost:'两路信号中断，本场已中断',countdown_signal_lost:'准备状态发生变化，请重新检查',manual_pause:'手动暂停',manual_end:'手动结束',duration_complete:'完成本轮训练',virtual_finish:'到达虚拟终点',emergency:'手动急停',operator_emergency:'手动急停',sdk_zero_unverified:'等待设备确认有效信号',storage_buffer_timeout:'记录积压，请老师检查',storage_write_failed:'记录保存故障，请老师检查',result_pending_retry_same_id:'操作结果待确认，请重试',report_not_ready:'报告正在整理，请稍等',process_restart:'程序重启，本次记录中断',settings_locked_during_session:'请先结束本场，再调整设置',superseded_by_emergency:'操作已被急停取消',fault_locked:'故障锁定',operation_limit_release_and_reclaim:'请释放操作权限后重新接管',service_busy:'服务忙，请稍后重试',idempotency_conflict:'请求编号冲突，请刷新页面'};
+Object.assign(labels,{
+ awaiting_new_frame:'等待设备产生新样本',connection_error:'连接异常，请检查头环',
+ missing_attention:'尚未收到专注读数',nonfinite_or_nonnumeric:'设备读数异常，等待有效新样本',
+ out_of_range:'读数超出有效范围，等待新样本',invalid_timestamp:'设备时间异常，请老师检查',
+ baseline:'基线采集中',normal:'设备校准完成',off:'尚未准备好'
+});
 export const describe = value => labels[value] || value || '';
 export function setText(id, text) {const el=$(id);if(el&&el.textContent!==String(text))el.textContent=text;}
 export function setHtml(id, html) {const el=$(id);if(el&&el._html!==html){el.innerHTML=html;el._html=html;}}

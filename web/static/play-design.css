@@ -110,25 +110,7 @@ body[data-page="live"]:not([data-live-layout="solo"]) #mode { margin-left: 4px; 
 .history-summary small { font-size: 11px; color: #4d729e; }
 .history-summary strong { display: block; color: #17315b; font-size: 25px; margin-top: 3px; }
 .history-summary > span { font-size: 10px; color: #6c86a6; margin-left: auto; }
-@media (min-width:1000px) {
- .report-charts #review-chart { height: 265px; }.report-charts #distribution-chart { height: 215px; }
- #trend-chart { height: 265px; }
- .play-stage { min-height: 415px; }
- .training-card { height: 415px; padding: 13px 15px 10px; }
- .training-card .gauge { height: 208px; }
- .training-card .streak-line { height: 31px; margin-bottom: 8px; font-size: 15px; }
- .training-card .mini-plot { height: 95px; }
- .solo-layout { grid-template-rows: 270px 135px; }
- .solo-main { height: 270px; }.solo-main .gauge { height: 232px; }
- .solo-side { grid-template-rows: 127px 133px; }
- .stat-tile strong { font-size: 43px; }
- .solo-plot { height: 135px; }.solo-plot .mini-plot { height: 110px; }
- .track-scenery { height: 322px; padding: 33px 18px; }.road { height: 256px; }
- .curb-top { top: 27px; }.curb-bottom { bottom: 27px; }
- .race-car { width: 140px; height: 70px; top: 26px; }.race-car.orange { top: 154px; }
- .race-lane-status { height: 62px; }
- .signal-missing .signal-help { top: 68px; height: 188px; }
-}
+
 @media (max-width:699px) {
  #detail-metrics { gap: 6px; }#detail-metrics .card { padding: 9px 6px; }#detail-metrics small { font-size: 10px; gap: 3px; }#detail-metrics small .icon { width: 13px; height: 13px; }
  #detail-metrics strong { font-size: 17px; margin: 5px 0 0; }

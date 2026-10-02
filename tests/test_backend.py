@@ -24,6 +24,29 @@ def normal(engine, lane, seq, raw=80, t=None):
 
 
 class EngineTests(unittest.TestCase):
+    def test_status_only_baseline_updates_do_not_create_fresh_samples(self):
+        c = config(tempfile.mkdtemp(), calibration_timeout=2)
+        e = Engine(c, "status-baseline", "training")
+        status = {"kind": "status", "connected": True, "worn": True,
+                  "state": "baseline", "reason": "awaiting_new_frame",
+                  "calibration_progress": .25, "device_baseline": 50}
+        e.feed(1, status)
+        e.advance(1)
+        e.feed(1, {**status, "calibration_progress": .5})
+        lane = e.snapshot()["players"][0]
+        self.assertEqual(lane["calibration_progress"], .5)
+        self.assertEqual(lane["calibration_since"], 0)
+        self.assertFalse(lane["valid"])
+        self.assertEqual(lane["sample_count"], 0)
+        self.assertIsNone(lane["sequence"])
+        self.assertFalse(e.intent("start", "status-baseline"))
+        e.advance(2)
+        self.assertEqual(e.snapshot()["players"][0]["reason"], "calibration_timeout")
+        e.feed(1, {**status, "state": "off", "worn": False})
+        e.advance(3)
+        e.feed(1, status)
+        self.assertEqual(e.snapshot()["players"][0]["calibration_since"], 3)
+
     def test_snapshot_exposes_session_thresholds_for_display(self):
         c = config(tempfile.mkdtemp(), start_threshold=25, high_focus_threshold=80)
         e = Engine(c, "display-thresholds", "training", references=[10, 90])

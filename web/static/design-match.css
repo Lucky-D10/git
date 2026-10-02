@@ -276,32 +276,7 @@ dialog p { color: #56739b; }
   .device-card .device-body { min-height: 150px; }
 }
 
-@media (min-width: 1000px) {
-  .page { padding-top: 22px; }
-  .home-page { padding-top: 37px; }
-  .welcome h1 { font-size: 35px; }
-  .mode-card { min-height: 275px; }.mode-art { height: 160px; }
-  .live-page { padding-top: 12px; }
-  .play-stage { min-height: 388px; }
-  .training-card { height: 388px; padding: 16px 24px; }
-  .training-card .gauge { height: 184px; }
-  .signal-missing .signal-help { top: 60px; height: 160px; }.signal-help .headband-art { width: 120px; height: 135px; }
-  .training-card .mini-plot { height: 81px; }
-  .training-card .streak-line { margin: 5px 0 8px; }
-  .solo-layout { grid-template-rows: 245px 133px; }
-  .solo-main { height: 245px; padding: 12px 23px; }
-  .solo-main .gauge { height: 182px; }
-  .solo-side { grid-template-rows: 112px 123px; }
-  .stat-tile { padding: 15px; }.stat-tile strong { font-size: 42px; }
-  .calm-card strong { font-size: 22px; }
-  .solo-plot { height: 133px; }.solo-plot .mini-plot { height: 108px; }
-  .track-scenery { height: 294px; padding-top: 34px; padding-bottom: 34px; }
-  .road { height: 226px; }.curb-top { top: 28px; }.curb-bottom { bottom: 28px; }
-  .track-label { top: 39px; }.race-car { top: 28px; }.race-car.orange { top: 139px; }
-  .race-status { margin-top: 12px; }.race-lane-status { height: 57px; }
-  .live-footer button { height: 58px; font-size: 20px; }
-  .portrait-art { width: 150px; height: 127px; }
-}
+
 @media (max-width: 699px) {
   .app-header { padding: 0 11px; gap: 8px; }.brand { font-size: 21px; }
   #page-title, .connection-label { display: none; }
@@ -540,17 +515,7 @@ body:has(#race-panel:not([hidden])) .stage-overlay[data-kind="countdown"] { back
   #prepare:not(:has(#devices.single)) .device-body { justify-content: center; }
   #prepare:not(:has(#devices.single)) .device-tip { font-size: 15px; padding: 8px; }
 }
-@media (min-width: 1000px) {
-  .play-stage { min-height: 388px; }.training-card { height: 388px; }
-  .solo-layout { grid-template-rows: 245px 133px; }.solo-main { height: 245px; }
-  .solo-side { grid-template-rows: 112px 123px; }
-  .training-card .gauge { height: 196px; }.solo-main .gauge { height: 184px; }
-  .solo-main .gauge-caption { margin-top: -3px; }
-  .home-dial { width: 252px; height: 160px; }
-  .setting-row { min-height: 72px; }
-  #result-race .track-scenery { height: 170px; }#result-race .road { height: 140px; }
-  #result-race .race-car { top: 8px; }#result-race .race-car.orange { top: 78px; }
-}
+
 @media (max-width: 699px) {
   .home-dial { width: 140px; height: 100px; }.small-button.owned { display: none; }
   .live-footer button { padding: 8px 6px; white-space: nowrap; }

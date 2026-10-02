@@ -138,7 +138,14 @@ class Engine:
             old = lane.reason
             lane.connected = frame.get("connected", lane.connected)
             lane.worn = frame.get("worn", lane.worn)
-            lane.calibration = frame.get("state", lane.calibration)
+            calibration = frame.get("state", lane.calibration)
+            if calibration == "baseline" and lane.calibration != "baseline":
+                lane.calibration_since = self.now
+            elif calibration != "baseline":
+                lane.calibration_since = None
+            lane.calibration = calibration
+            lane.calibration_progress = frame.get("calibration_progress")
+            lane.device_baseline = frame.get("device_baseline")
             self._invalidate(lane, frame.get("reason", "not_connected"))
             if old != lane.reason:
                 self.event("device_transition", lane=lane_id, old=old, new=lane.reason)

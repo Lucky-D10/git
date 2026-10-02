@@ -863,6 +863,7 @@ def _headband_worker(device_id):
                         else:
                             sample = replace(sample, valid=False)
                             _emit_frame(device_id, kind="status", received=now, connected=connected is not False, worn=worn,
+                                        device_baseline=sample.baseline, calibration_progress=sample.baseline_progress,
                                         state=resolved_state, reason="unverified_identity" if gate.reason == "unverified_identity" else "not_worn" if worn is False else "awaiting_new_frame")
                         _publish(device_id, sample)
                         if sample.state != previous_state:

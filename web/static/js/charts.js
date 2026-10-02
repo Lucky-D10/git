@@ -2,6 +2,8 @@ import {finite,describe} from './ui.js';
 export const charts=new Map();
 const palette=['#148cff','#ff8b16'];
 const observers=new Map();
+const densities=new Map();
+const density=()=>devicePixelRatio*(window.focusLayout?.scale||1);
 const timeLabel=v=>{const seconds=Math.max(0,Math.round(v));return Math.floor(seconds/60)+':'+String(seconds%60).padStart(2,'0');};
 const tooltip={trigger:'axis',confine:true,backgroundColor:'#fffffff5',borderColor:'#dce9f7',textStyle:{color:'#243e66',fontSize:12}};
 const emptyGraphic=(text,show)=>[{id:'empty',type:'text',left:'center',top:'middle',silent:true,invisible:!show,z:30,style:{text,fill:'#6881a1',font:'13px "Microsoft YaHei",sans-serif',backgroundColor:'#f8fcfff0',padding:12}}];
@@ -10,13 +12,17 @@ export function chart(id){
  if(charts.has(id)&&charts.get(id).getDom()!==node)dispose([id]);
  if(!node.clientWidth||!node.clientHeight)return null;
  if(!charts.has(id)){
-  const c=echarts.init(node,null,{renderer:'canvas'});charts.set(id,c);
+  const dpr=density(),c=echarts.init(node,null,{renderer:'canvas',devicePixelRatio:dpr});charts.set(id,c);densities.set(id,dpr);
   const observer=new ResizeObserver(()=>{if(node.clientWidth&&node.clientHeight&&!c.isDisposed())c.resize();});observer.observe(node);observers.set(id,observer);
  }
  return charts.get(id);
 }
-export function dispose(ids){for(const id of ids){observers.get(id)?.disconnect();observers.delete(id);charts.get(id)?.dispose();charts.delete(id);}}
-export function resize(){for(const [id,c] of charts){const n=document.getElementById(id);if(n?.offsetWidth)c.resize();}}
+export function dispose(ids){for(const id of ids){observers.get(id)?.disconnect();observers.delete(id);densities.delete(id);charts.get(id)?.dispose();charts.delete(id);}}
+export function resize(){for(const [id,c] of [...charts]){
+ const n=document.getElementById(id);if(!n?.offsetWidth)continue;
+ if(Math.abs(densities.get(id)-density())>.01){const option=c.getOption();dispose([id]);chart(id)?.setOption(option);}
+ else c.resize();
+}}
 export function gauge(id,p,lane=0,paused=false,thresholds=[20,70]){
  const existed=charts.has(id),c=chart(id);if(!c)return;
  const color=palette[lane],valid=p.valid&&finite(p.smoothed),value=valid?Math.max(0,Math.min(100,p.smoothed)):0;
@@ -102,7 +108,7 @@ export function review(id,report,lane=0){
   legend:{top:0,right:0,itemWidth:17,itemHeight:7,textStyle:{color:'#506b8f',fontSize:11},data:['原始值','平滑值','目标 '+p.reference]},grid:{left:36,right:18,top:35,bottom:51},
   xAxis:{type:'value',min:0,max:end,minInterval:end<10?.1:1,splitNumber:c.getWidth()<400?3:6,axisPointer:{label:{formatter:v=>Number(v.value).toFixed(1)+' 秒'}},axisLabel:{formatter:v=>end<10?Number(v).toFixed(1)+'s':timeLabel(v),hideOverlap:true,color:'#5876a2',fontSize:10},splitLine:{show:true,lineStyle:{color:'#e8f0fa'}}},
   yAxis:{type:'value',min:0,max:100,interval:50,axisLabel:{color:'#5876a2'},splitLine:{lineStyle:{color:'#e2edf9'}}},
-  dataZoom:[{type:'inside',filterMode:'none'},{type:'slider',filterMode:'none',height:17,bottom:3,borderColor:'#d8e7f9',fillerColor:'#c9e1fa66',labelFormatter:timeLabel}],
+  dataZoom:[{type:'inside',filterMode:'none'},{type:'slider',filterMode:'none',showDataShadow:false,brushSelect:false,height:12,bottom:5,handleSize:'150%',borderColor:'#d8e7f9',backgroundColor:'#edf4fc',fillerColor:'#95caff88',labelFormatter:timeLabel}],
   series:[
    {id:'raw',name:'原始值',type:'line',showSymbol:true,symbolSize:(_,p)=>data.length<15||(!finite(data[p.dataIndex-1]?.[1])&&!finite(data[p.dataIndex+1]?.[1]))?4:0,connectNulls:false,data:data.map(v=>[v[0],v[1]]),lineStyle:{width:1.5,color:tint}},
    {id:'smooth',name:'平滑值',type:'line',smooth:.2,smoothMonotone:'x',showSymbol:true,symbolSize:(_,p)=>data.length<15||(!finite(data[p.dataIndex-1]?.[2])&&!finite(data[p.dataIndex+1]?.[2]))?6:0,connectNulls:false,data:data.map(v=>[v[0],v[2]]),lineStyle:{width:3},
@@ -133,7 +139,7 @@ export function historyTrend(id,rows,pid,metric='best_streak'){
   tooltip:{...tooltip,valueFormatter:v=>finite(v)?Number(v).toFixed(1)+' '+unit:'记录不足'},
   xAxis:{type:'category',data:data.map(s=>new Date(s.started_utc).toLocaleString('zh-CN',{month:'numeric',day:'numeric',hour:'2-digit',minute:'2-digit'})),axisLabel:{color:'#5876a2',fontSize:10,hideOverlap:true,formatter:v=>v.replace(' ','\n')},axisTick:{show:false},splitLine:{show:true,lineStyle:{color:'#e6effa'}}},
   yAxis:{type:'value',name:name+' / '+unit,min:0,max:metric==='stable_ratio'?100:null,nameTextStyle:{color:'#567497',fontSize:11},axisLabel:{color:'#7890aa',fontSize:10},splitLine:{lineStyle:{color:'#e2edf9'}}},
-  dataZoom:[{type:'inside',filterMode:'none'},{type:'slider',show:rows.length>6,height:15,bottom:0,start:rows.length>12?100-1200/rows.length:0,end:100}],
+  dataZoom:[{type:'inside',filterMode:'none'},{type:'slider',show:rows.length>6,showDataShadow:false,brushSelect:false,height:12,bottom:4,start:rows.length>12?100-1200/rows.length:0,end:100}],
   series:[{id:'history',name,type:'line',smooth:.18,connectNulls:false,data:values,lineStyle:{color:palette[0],width:3},itemStyle:{color:palette[0],borderColor:'#fff',borderWidth:2},areaStyle:{color:new echarts.graphic.LinearGradient(0,0,0,1,[{offset:0,color:'#b3d9ff70'},{offset:1,color:'#fafdff00'}])},symbolSize:8,
    markPoint:{symbol:'circle',symbolSize:10,label:{show:enough,position:'top',fontSize:10,color:'#267fcd',formatter:v=>'最佳 '+Number(v.value).toFixed(1)},data:enough?[{type:'max'}]:[]}}],
  },{notMerge:true});

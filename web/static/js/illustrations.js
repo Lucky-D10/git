@@ -4,13 +4,17 @@ export function portrait(lane=0,wear=false){
  return `<svg class="${wear?'headband-art':'portrait-art'} ${blue?'blue':'orange'}" viewBox="0 0 180 170" aria-hidden="true">
  <circle cx="90" cy="86" r="75" fill="${blue?'#dcf0ff':'#ffeed7'}"/>
  ${!blue?'<path d="M121 39Q152 32 150 65L159 113Q151 136 131 128L124 85Z" fill="#49352c"/><path d="M144 54q18 34 6 61" fill="none" stroke="#674638" stroke-width="8"/>':''}
- <path d="M35 167q-4-38 33-47h44q37 9 33 47Z" fill="${color}"/>
- <path d="m67 124 23 16 23-16-8 34H76Z" fill="${dark}"/><path d="m70 126 20 16 20-16" fill="none" stroke="#acd8f9" stroke-width="3"/>
+ <path d="M32 167q-3-37 32-46h52q35 9 32 46Z" fill="${dark}"/>
+ <path d="M39 167q-2-34 29-43h44q31 9 29 43Z" fill="${color}"/>
+ <path d="M45 150q3-16 22-21l-9 38H40Z" fill="${blue?'#58acfa':'#ffc166'}"/>
+ <path d="m66 124 24 17 24-17-9 34H76Z" fill="${dark}"/><path d="m68 125 22 17 22-17" fill="none" stroke="${blue?'#acd8f9':'#ffe2b7'}" stroke-width="3"/>
  <path d="M77 111h26v21q-13 11-26 0Z" fill="#ffcba5"/>
  <ellipse cx="48" cy="82" rx="9" ry="13" fill="#ffd0ae"/><ellipse cx="132" cy="82" rx="9" ry="13" fill="#ffd0ae"/>
  <path d="M47 66q0-43 43-43t43 43v21q-2 36-43 40-41-4-43-40Z" fill="#ffddbd"/>
+ <path d="M49 86q5 32 41 35 31-2 40-27-6 29-40 33-38-4-41-41Z" fill="#f5c5a3"/>
  <path d="M45 76Q31 37 63 29L63 21l14 5 12-12 8 10q40-8 44 34l-10 23-6-28q-17 5-28-8-15 19-41 17l-3 19Z" fill="${blue?'#263d63':'#49352c'}"/>
  <path d="M50 52q10-23 34-20M98 30q22-3 31 17" fill="none" stroke="${blue?'#34517c':'#604235'}" stroke-width="5" stroke-linecap="round"/>
+ <path d="M55 41q12-13 26-11m24 0q14 1 21 10" fill="none" stroke="${blue?'#516c91':'#806052'}" stroke-width="2.2" stroke-linecap="round"/>
  <ellipse cx="73" cy="82" rx="7" ry="9" fill="#fff"/><ellipse cx="107" cy="82" rx="7" ry="9" fill="#fff"/>
  <ellipse cx="74" cy="83" rx="4.5" ry="7" fill="#253344"/><ellipse cx="106" cy="83" rx="4.5" ry="7" fill="#253344"/>
  <circle cx="76" cy="80" r="2" fill="#fff"/><circle cx="108" cy="80" r="2" fill="#fff"/>
