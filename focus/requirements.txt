@@ -1,0 +1,12 @@
+# Runtime compatibility recorded for stage1 (the vendor wheel is installed separately).
+# Python: 3.9+ (the supplied development environment is CPython 3.9.13).
+# Raspberry Pi: Raspberry Pi OS 64-bit / aarch64 is the deployment target;
+# this checkout has not been run on a Pi in the current environment.
+# GUI: python3-tk from the OS package manager.
+# GPIO: RPi.GPIO >= 0.7.1 from python3-rpi.gpio; only used in hardware mode.
+# Headband: attention_usb vendor wheel matching the selected Python ABI and aarch64;
+# record its exact wheel filename in the environment report after installation.
+# Web versions validated on Python 3.9.13; no native uvloop dependency required.
+fastapi==0.115.12
+uvicorn==0.34.2
+websockets==15.0.1

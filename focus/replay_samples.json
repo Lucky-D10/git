@@ -1,0 +1,1623 @@
+{
+  "stable": [
+    {
+      "t": 0,
+      "type": "frame",
+      "lane": 1,
+      "frame": {
+        "raw": 80,
+        "sequence": 1,
+        "received": 0,
+        "generation": 0,
+        "connected": true,
+        "worn": true,
+        "state": "normal"
+      }
+    },
+    {
+      "t": 0,
+      "type": "frame",
+      "lane": 2,
+      "frame": {
+        "raw": 80,
+        "sequence": 1,
+        "received": 0,
+        "generation": 0,
+        "connected": true,
+        "worn": true,
+        "state": "normal"
+      }
+    },
+    {
+      "t": 0,
+      "type": "intent",
+      "action": "start"
+    },
+    {
+      "t": 0.1,
+      "type": "tick"
+    },
+    {
+      "t": 0.25,
+      "type": "frame",
+      "lane": 1,
+      "frame": {
+        "raw": 80,
+        "sequence": 2,
+        "received": 0.25,
+        "generation": 0,
+        "connected": true,
+        "worn": true,
+        "state": "normal"
+      }
+    },
+    {
+      "t": 0.25,
+      "type": "frame",
+      "lane": 2,
+      "frame": {
+        "raw": 80,
+        "sequence": 2,
+        "received": 0.25,
+        "generation": 0,
+        "connected": true,
+        "worn": true,
+        "state": "normal"
+      }
+    },
+    {
+      "t": 0.5,
+      "type": "frame",
+      "lane": 1,
+      "frame": {
+        "raw": 80,
+        "sequence": 3,
+        "received": 0.5,
+        "generation": 0,
+        "connected": true,
+        "worn": true,
+        "state": "normal"
+      }
+    },
+    {
+      "t": 0.5,
+      "type": "frame",
+      "lane": 2,
+      "frame": {
+        "raw": 80,
+        "sequence": 3,
+        "received": 0.5,
+        "generation": 0,
+        "connected": true,
+        "worn": true,
+        "state": "normal"
+      }
+    },
+    {
+      "t": 0.75,
+      "type": "frame",
+      "lane": 1,
+      "frame": {
+        "raw": 80,
+        "sequence": 4,
+        "received": 0.75,
+        "generation": 0,
+        "connected": true,
+        "worn": true,
+        "state": "normal"
+      }
+    },
+    {
+      "t": 0.75,
+      "type": "frame",
+      "lane": 2,
+      "frame": {
+        "raw": 80,
+        "sequence": 4,
+        "received": 0.75,
+        "generation": 0,
+        "connected": true,
+        "worn": true,
+        "state": "normal"
+      }
+    },
+    {
+      "t": 1.0,
+      "type": "frame",
+      "lane": 1,
+      "frame": {
+        "raw": 80,
+        "sequence": 5,
+        "received": 1.0,
+        "generation": 0,
+        "connected": true,
+        "worn": true,
+        "state": "normal"
+      }
+    },
+    {
+      "t": 1.0,
+      "type": "frame",
+      "lane": 2,
+      "frame": {
+        "raw": 80,
+        "sequence": 5,
+        "received": 1.0,
+        "generation": 0,
+        "connected": true,
+        "worn": true,
+        "state": "normal"
+      }
+    },
+    {
+      "t": 1.25,
+      "type": "frame",
+      "lane": 1,
+      "frame": {
+        "raw": 80,
+        "sequence": 6,
+        "received": 1.25,
+        "generation": 0,
+        "connected": true,
+        "worn": true,
+        "state": "normal"
+      }
+    },
+    {
+      "t": 1.25,
+      "type": "frame",
+      "lane": 2,
+      "frame": {
+        "raw": 80,
+        "sequence": 6,
+        "received": 1.25,
+        "generation": 0,
+        "connected": true,
+        "worn": true,
+        "state": "normal"
+      }
+    },
+    {
+      "t": 1.5,
+      "type": "frame",
+      "lane": 1,
+      "frame": {
+        "raw": 80,
+        "sequence": 7,
+        "received": 1.5,
+        "generation": 0,
+        "connected": true,
+        "worn": true,
+        "state": "normal"
+      }
+    },
+    {
+      "t": 1.5,
+      "type": "frame",
+      "lane": 2,
+      "frame": {
+        "raw": 80,
+        "sequence": 7,
+        "received": 1.5,
+        "generation": 0,
+        "connected": true,
+        "worn": true,
+        "state": "normal"
+      }
+    },
+    {
+      "t": 1.75,
+      "type": "frame",
+      "lane": 1,
+      "frame": {
+        "raw": 80,
+        "sequence": 8,
+        "received": 1.75,
+        "generation": 0,
+        "connected": true,
+        "worn": true,
+        "state": "normal"
+      }
+    },
+    {
+      "t": 1.75,
+      "type": "frame",
+      "lane": 2,
+      "frame": {
+        "raw": 80,
+        "sequence": 8,
+        "received": 1.75,
+        "generation": 0,
+        "connected": true,
+        "worn": true,
+        "state": "normal"
+      }
+    },
+    {
+      "t": 2.0,
+      "type": "frame",
+      "lane": 1,
+      "frame": {
+        "raw": 80,
+        "sequence": 9,
+        "received": 2.0,
+        "generation": 0,
+        "connected": true,
+        "worn": true,
+        "state": "normal"
+      }
+    },
+    {
+      "t": 2.0,
+      "type": "frame",
+      "lane": 2,
+      "frame": {
+        "raw": 80,
+        "sequence": 9,
+        "received": 2.0,
+        "generation": 0,
+        "connected": true,
+        "worn": true,
+        "state": "normal"
+      }
+    },
+    {
+      "t": 2.25,
+      "type": "frame",
+      "lane": 1,
+      "frame": {
+        "raw": 80,
+        "sequence": 10,
+        "received": 2.25,
+        "generation": 0,
+        "connected": true,
+        "worn": true,
+        "state": "normal"
+      }
+    },
+    {
+      "t": 2.25,
+      "type": "frame",
+      "lane": 2,
+      "frame": {
+        "raw": 80,
+        "sequence": 10,
+        "received": 2.25,
+        "generation": 0,
+        "connected": true,
+        "worn": true,
+        "state": "normal"
+      }
+    },
+    {
+      "t": 2.5,
+      "type": "frame",
+      "lane": 1,
+      "frame": {
+        "raw": 80,
+        "sequence": 11,
+        "received": 2.5,
+        "generation": 0,
+        "connected": true,
+        "worn": true,
+        "state": "normal"
+      }
+    },
+    {
+      "t": 2.5,
+      "type": "frame",
+      "lane": 2,
+      "frame": {
+        "raw": 80,
+        "sequence": 11,
+        "received": 2.5,
+        "generation": 0,
+        "connected": true,
+        "worn": true,
+        "state": "normal"
+      }
+    },
+    {
+      "t": 2.75,
+      "type": "frame",
+      "lane": 1,
+      "frame": {
+        "raw": 80,
+        "sequence": 12,
+        "received": 2.75,
+        "generation": 0,
+        "connected": true,
+        "worn": true,
+        "state": "normal"
+      }
+    },
+    {
+      "t": 2.75,
+      "type": "frame",
+      "lane": 2,
+      "frame": {
+        "raw": 80,
+        "sequence": 12,
+        "received": 2.75,
+        "generation": 0,
+        "connected": true,
+        "worn": true,
+        "state": "normal"
+      }
+    },
+    {
+      "t": 3.0,
+      "type": "frame",
+      "lane": 1,
+      "frame": {
+        "raw": 80,
+        "sequence": 13,
+        "received": 3.0,
+        "generation": 0,
+        "connected": true,
+        "worn": true,
+        "state": "normal"
+      }
+    },
+    {
+      "t": 3.0,
+      "type": "frame",
+      "lane": 2,
+      "frame": {
+        "raw": 80,
+        "sequence": 13,
+        "received": 3.0,
+        "generation": 0,
+        "connected": true,
+        "worn": true,
+        "state": "normal"
+      }
+    },
+    {
+      "t": 3.25,
+      "type": "frame",
+      "lane": 1,
+      "frame": {
+        "raw": 80,
+        "sequence": 14,
+        "received": 3.25,
+        "generation": 0,
+        "connected": true,
+        "worn": true,
+        "state": "normal"
+      }
+    },
+    {
+      "t": 3.25,
+      "type": "frame",
+      "lane": 2,
+      "frame": {
+        "raw": 80,
+        "sequence": 14,
+        "received": 3.25,
+        "generation": 0,
+        "connected": true,
+        "worn": true,
+        "state": "normal"
+      }
+    },
+    {
+      "t": 3.5,
+      "type": "frame",
+      "lane": 1,
+      "frame": {
+        "raw": 80,
+        "sequence": 15,
+        "received": 3.5,
+        "generation": 0,
+        "connected": true,
+        "worn": true,
+        "state": "normal"
+      }
+    },
+    {
+      "t": 3.5,
+      "type": "frame",
+      "lane": 2,
+      "frame": {
+        "raw": 80,
+        "sequence": 15,
+        "received": 3.5,
+        "generation": 0,
+        "connected": true,
+        "worn": true,
+        "state": "normal"
+      }
+    },
+    {
+      "t": 3.75,
+      "type": "frame",
+      "lane": 1,
+      "frame": {
+        "raw": 80,
+        "sequence": 16,
+        "received": 3.75,
+        "generation": 0,
+        "connected": true,
+        "worn": true,
+        "state": "normal"
+      }
+    },
+    {
+      "t": 3.75,
+      "type": "frame",
+      "lane": 2,
+      "frame": {
+        "raw": 80,
+        "sequence": 16,
+        "received": 3.75,
+        "generation": 0,
+        "connected": true,
+        "worn": true,
+        "state": "normal"
+      }
+    },
+    {
+      "t": 4.0,
+      "type": "frame",
+      "lane": 1,
+      "frame": {
+        "raw": 80,
+        "sequence": 17,
+        "received": 4.0,
+        "generation": 0,
+        "connected": true,
+        "worn": true,
+        "state": "normal"
+      }
+    },
+    {
+      "t": 4.0,
+      "type": "frame",
+      "lane": 2,
+      "frame": {
+        "raw": 80,
+        "sequence": 17,
+        "received": 4.0,
+        "generation": 0,
+        "connected": true,
+        "worn": true,
+        "state": "normal"
+      }
+    },
+    {
+      "t": 4.25,
+      "type": "frame",
+      "lane": 1,
+      "frame": {
+        "raw": 80,
+        "sequence": 18,
+        "received": 4.25,
+        "generation": 0,
+        "connected": true,
+        "worn": true,
+        "state": "normal"
+      }
+    },
+    {
+      "t": 4.25,
+      "type": "frame",
+      "lane": 2,
+      "frame": {
+        "raw": 80,
+        "sequence": 18,
+        "received": 4.25,
+        "generation": 0,
+        "connected": true,
+        "worn": true,
+        "state": "normal"
+      }
+    },
+    {
+      "t": 4.5,
+      "type": "frame",
+      "lane": 1,
+      "frame": {
+        "raw": 80,
+        "sequence": 19,
+        "received": 4.5,
+        "generation": 0,
+        "connected": true,
+        "worn": true,
+        "state": "normal"
+      }
+    },
+    {
+      "t": 4.5,
+      "type": "frame",
+      "lane": 2,
+      "frame": {
+        "raw": 80,
+        "sequence": 19,
+        "received": 4.5,
+        "generation": 0,
+        "connected": true,
+        "worn": true,
+        "state": "normal"
+      }
+    },
+    {
+      "t": 4.75,
+      "type": "frame",
+      "lane": 1,
+      "frame": {
+        "raw": 80,
+        "sequence": 20,
+        "received": 4.75,
+        "generation": 0,
+        "connected": true,
+        "worn": true,
+        "state": "normal"
+      }
+    },
+    {
+      "t": 4.75,
+      "type": "frame",
+      "lane": 2,
+      "frame": {
+        "raw": 80,
+        "sequence": 20,
+        "received": 4.75,
+        "generation": 0,
+        "connected": true,
+        "worn": true,
+        "state": "normal"
+      }
+    },
+    {
+      "t": 5.0,
+      "type": "frame",
+      "lane": 1,
+      "frame": {
+        "raw": 80,
+        "sequence": 21,
+        "received": 5.0,
+        "generation": 0,
+        "connected": true,
+        "worn": true,
+        "state": "normal"
+      }
+    },
+    {
+      "t": 5.0,
+      "type": "frame",
+      "lane": 2,
+      "frame": {
+        "raw": 80,
+        "sequence": 21,
+        "received": 5.0,
+        "generation": 0,
+        "connected": true,
+        "worn": true,
+        "state": "normal"
+      }
+    },
+    {
+      "t": 5.25,
+      "type": "frame",
+      "lane": 1,
+      "frame": {
+        "raw": 80,
+        "sequence": 22,
+        "received": 5.25,
+        "generation": 0,
+        "connected": true,
+        "worn": true,
+        "state": "normal"
+      }
+    },
+    {
+      "t": 5.25,
+      "type": "frame",
+      "lane": 2,
+      "frame": {
+        "raw": 80,
+        "sequence": 22,
+        "received": 5.25,
+        "generation": 0,
+        "connected": true,
+        "worn": true,
+        "state": "normal"
+      }
+    },
+    {
+      "t": 5.5,
+      "type": "frame",
+      "lane": 1,
+      "frame": {
+        "raw": 80,
+        "sequence": 23,
+        "received": 5.5,
+        "generation": 0,
+        "connected": true,
+        "worn": true,
+        "state": "normal"
+      }
+    },
+    {
+      "t": 5.5,
+      "type": "frame",
+      "lane": 2,
+      "frame": {
+        "raw": 80,
+        "sequence": 23,
+        "received": 5.5,
+        "generation": 0,
+        "connected": true,
+        "worn": true,
+        "state": "normal"
+      }
+    },
+    {
+      "t": 5.75,
+      "type": "frame",
+      "lane": 1,
+      "frame": {
+        "raw": 80,
+        "sequence": 24,
+        "received": 5.75,
+        "generation": 0,
+        "connected": true,
+        "worn": true,
+        "state": "normal"
+      }
+    },
+    {
+      "t": 5.75,
+      "type": "frame",
+      "lane": 2,
+      "frame": {
+        "raw": 80,
+        "sequence": 24,
+        "received": 5.75,
+        "generation": 0,
+        "connected": true,
+        "worn": true,
+        "state": "normal"
+      }
+    },
+    {
+      "t": 6.0,
+      "type": "frame",
+      "lane": 1,
+      "frame": {
+        "raw": 80,
+        "sequence": 25,
+        "received": 6.0,
+        "generation": 0,
+        "connected": true,
+        "worn": true,
+        "state": "normal"
+      }
+    },
+    {
+      "t": 6.0,
+      "type": "frame",
+      "lane": 2,
+      "frame": {
+        "raw": 80,
+        "sequence": 25,
+        "received": 6.0,
+        "generation": 0,
+        "connected": true,
+        "worn": true,
+        "state": "normal"
+      }
+    },
+    {
+      "t": 6.2,
+      "type": "tick"
+    }
+  ],
+  "alternating": [
+    {
+      "t": 0,
+      "type": "frame",
+      "lane": 1,
+      "frame": {
+        "raw": 80,
+        "sequence": 1,
+        "received": 0,
+        "generation": 0,
+        "connected": true,
+        "worn": true,
+        "state": "normal"
+      }
+    },
+    {
+      "t": 0,
+      "type": "frame",
+      "lane": 2,
+      "frame": {
+        "raw": 80,
+        "sequence": 1,
+        "received": 0,
+        "generation": 0,
+        "connected": true,
+        "worn": true,
+        "state": "normal"
+      }
+    },
+    {
+      "t": 0,
+      "type": "intent",
+      "action": "start"
+    },
+    {
+      "t": 0.1,
+      "type": "tick"
+    },
+    {
+      "t": 0.25,
+      "type": "frame",
+      "lane": 1,
+      "frame": {
+        "raw": 95,
+        "sequence": 2,
+        "received": 0.25,
+        "generation": 0,
+        "connected": true,
+        "worn": true,
+        "state": "normal"
+      }
+    },
+    {
+      "t": 0.25,
+      "type": "frame",
+      "lane": 2,
+      "frame": {
+        "raw": 20,
+        "sequence": 2,
+        "received": 0.25,
+        "generation": 0,
+        "connected": true,
+        "worn": true,
+        "state": "normal"
+      }
+    },
+    {
+      "t": 0.5,
+      "type": "frame",
+      "lane": 1,
+      "frame": {
+        "raw": 20,
+        "sequence": 3,
+        "received": 0.5,
+        "generation": 0,
+        "connected": true,
+        "worn": true,
+        "state": "normal"
+      }
+    },
+    {
+      "t": 0.5,
+      "type": "frame",
+      "lane": 2,
+      "frame": {
+        "raw": 95,
+        "sequence": 3,
+        "received": 0.5,
+        "generation": 0,
+        "connected": true,
+        "worn": true,
+        "state": "normal"
+      }
+    },
+    {
+      "t": 0.75,
+      "type": "frame",
+      "lane": 1,
+      "frame": {
+        "raw": 95,
+        "sequence": 4,
+        "received": 0.75,
+        "generation": 0,
+        "connected": true,
+        "worn": true,
+        "state": "normal"
+      }
+    },
+    {
+      "t": 0.75,
+      "type": "frame",
+      "lane": 2,
+      "frame": {
+        "raw": 20,
+        "sequence": 4,
+        "received": 0.75,
+        "generation": 0,
+        "connected": true,
+        "worn": true,
+        "state": "normal"
+      }
+    },
+    {
+      "t": 1.0,
+      "type": "frame",
+      "lane": 1,
+      "frame": {
+        "raw": 20,
+        "sequence": 5,
+        "received": 1.0,
+        "generation": 0,
+        "connected": true,
+        "worn": true,
+        "state": "normal"
+      }
+    },
+    {
+      "t": 1.0,
+      "type": "frame",
+      "lane": 2,
+      "frame": {
+        "raw": 95,
+        "sequence": 5,
+        "received": 1.0,
+        "generation": 0,
+        "connected": true,
+        "worn": true,
+        "state": "normal"
+      }
+    },
+    {
+      "t": 1.25,
+      "type": "frame",
+      "lane": 1,
+      "frame": {
+        "raw": 95,
+        "sequence": 6,
+        "received": 1.25,
+        "generation": 0,
+        "connected": true,
+        "worn": true,
+        "state": "normal"
+      }
+    },
+    {
+      "t": 1.25,
+      "type": "frame",
+      "lane": 2,
+      "frame": {
+        "raw": 20,
+        "sequence": 6,
+        "received": 1.25,
+        "generation": 0,
+        "connected": true,
+        "worn": true,
+        "state": "normal"
+      }
+    },
+    {
+      "t": 1.5,
+      "type": "frame",
+      "lane": 1,
+      "frame": {
+        "raw": 20,
+        "sequence": 7,
+        "received": 1.5,
+        "generation": 0,
+        "connected": true,
+        "worn": true,
+        "state": "normal"
+      }
+    },
+    {
+      "t": 1.5,
+      "type": "frame",
+      "lane": 2,
+      "frame": {
+        "raw": 95,
+        "sequence": 7,
+        "received": 1.5,
+        "generation": 0,
+        "connected": true,
+        "worn": true,
+        "state": "normal"
+      }
+    },
+    {
+      "t": 1.75,
+      "type": "frame",
+      "lane": 1,
+      "frame": {
+        "raw": 95,
+        "sequence": 8,
+        "received": 1.75,
+        "generation": 0,
+        "connected": true,
+        "worn": true,
+        "state": "normal"
+      }
+    },
+    {
+      "t": 1.75,
+      "type": "frame",
+      "lane": 2,
+      "frame": {
+        "raw": 20,
+        "sequence": 8,
+        "received": 1.75,
+        "generation": 0,
+        "connected": true,
+        "worn": true,
+        "state": "normal"
+      }
+    },
+    {
+      "t": 2.0,
+      "type": "frame",
+      "lane": 1,
+      "frame": {
+        "raw": 20,
+        "sequence": 9,
+        "received": 2.0,
+        "generation": 0,
+        "connected": true,
+        "worn": true,
+        "state": "normal"
+      }
+    },
+    {
+      "t": 2.0,
+      "type": "frame",
+      "lane": 2,
+      "frame": {
+        "raw": 95,
+        "sequence": 9,
+        "received": 2.0,
+        "generation": 0,
+        "connected": true,
+        "worn": true,
+        "state": "normal"
+      }
+    },
+    {
+      "t": 2.2,
+      "type": "tick"
+    }
+  ],
+  "single_loss": [
+    {
+      "t": 0,
+      "type": "frame",
+      "lane": 1,
+      "frame": {
+        "raw": 80,
+        "sequence": 1,
+        "received": 0,
+        "generation": 0,
+        "connected": true,
+        "worn": true,
+        "state": "normal"
+      }
+    },
+    {
+      "t": 0,
+      "type": "frame",
+      "lane": 2,
+      "frame": {
+        "raw": 80,
+        "sequence": 1,
+        "received": 0,
+        "generation": 0,
+        "connected": true,
+        "worn": true,
+        "state": "normal"
+      }
+    },
+    {
+      "t": 0,
+      "type": "intent",
+      "action": "start"
+    },
+    {
+      "t": 0.1,
+      "type": "tick"
+    },
+    {
+      "t": 0.25,
+      "type": "frame",
+      "lane": 1,
+      "frame": {
+        "raw": 80,
+        "sequence": 2,
+        "received": 0.25,
+        "generation": 0,
+        "connected": true,
+        "worn": true,
+        "state": "normal"
+      }
+    },
+    {
+      "t": 0.25,
+      "type": "frame",
+      "lane": 2,
+      "frame": {
+        "raw": 80,
+        "sequence": 2,
+        "received": 0.25,
+        "generation": 0,
+        "connected": true,
+        "worn": true,
+        "state": "normal"
+      }
+    },
+    {
+      "t": 0.5,
+      "type": "frame",
+      "lane": 1,
+      "frame": {
+        "raw": null,
+        "sequence": 3,
+        "received": 0.5,
+        "generation": 0,
+        "connected": false,
+        "worn": false,
+        "state": "off"
+      }
+    },
+    {
+      "t": 0.5,
+      "type": "frame",
+      "lane": 2,
+      "frame": {
+        "raw": 80,
+        "sequence": 3,
+        "received": 0.5,
+        "generation": 0,
+        "connected": true,
+        "worn": true,
+        "state": "normal"
+      }
+    },
+    {
+      "t": 0.75,
+      "type": "frame",
+      "lane": 1,
+      "frame": {
+        "raw": null,
+        "sequence": 4,
+        "received": 0.75,
+        "generation": 0,
+        "connected": true,
+        "worn": true,
+        "state": "normal"
+      }
+    },
+    {
+      "t": 0.75,
+      "type": "frame",
+      "lane": 2,
+      "frame": {
+        "raw": 80,
+        "sequence": 4,
+        "received": 0.75,
+        "generation": 0,
+        "connected": true,
+        "worn": true,
+        "state": "normal"
+      }
+    },
+    {
+      "t": 1,
+      "type": "tick"
+    }
+  ],
+  "double_loss": [
+    {
+      "t": 0,
+      "type": "frame",
+      "lane": 1,
+      "frame": {
+        "raw": 80,
+        "sequence": 1,
+        "received": 0,
+        "generation": 0,
+        "connected": true,
+        "worn": true,
+        "state": "normal"
+      }
+    },
+    {
+      "t": 0,
+      "type": "frame",
+      "lane": 2,
+      "frame": {
+        "raw": 80,
+        "sequence": 1,
+        "received": 0,
+        "generation": 0,
+        "connected": true,
+        "worn": true,
+        "state": "normal"
+      }
+    },
+    {
+      "t": 0,
+      "type": "intent",
+      "action": "start"
+    },
+    {
+      "t": 0.1,
+      "type": "tick"
+    },
+    {
+      "t": 0.5,
+      "type": "frame",
+      "lane": 1,
+      "frame": {
+        "raw": null,
+        "sequence": 2,
+        "received": 0.5,
+        "generation": 0,
+        "connected": false,
+        "worn": false,
+        "state": "off"
+      }
+    },
+    {
+      "t": 0.5,
+      "type": "frame",
+      "lane": 2,
+      "frame": {
+        "raw": null,
+        "sequence": 2,
+        "received": 0.5,
+        "generation": 0,
+        "connected": false,
+        "worn": false,
+        "state": "off"
+      }
+    },
+    {
+      "t": 2,
+      "type": "tick"
+    }
+  ],
+  "baseline_timeout": [
+    {
+      "t": 0,
+      "type": "frame",
+      "lane": 1,
+      "frame": {
+        "raw": null,
+        "sequence": 1,
+        "received": 0,
+        "generation": 0,
+        "connected": true,
+        "worn": true,
+        "state": "baseline"
+      }
+    },
+    {
+      "t": 0,
+      "type": "frame",
+      "lane": 2,
+      "frame": {
+        "raw": null,
+        "sequence": 1,
+        "received": 0,
+        "generation": 0,
+        "connected": true,
+        "worn": true,
+        "state": "baseline"
+      }
+    },
+    {
+      "t": 0.1,
+      "type": "intent",
+      "action": "start"
+    },
+    {
+      "t": 1.2,
+      "type": "tick"
+    }
+  ],
+  "duplicate": [
+    {
+      "t": 0,
+      "type": "frame",
+      "lane": 1,
+      "frame": {
+        "raw": 80,
+        "sequence": 1,
+        "received": 0,
+        "generation": 0,
+        "connected": true,
+        "worn": true,
+        "state": "normal"
+      }
+    },
+    {
+      "t": 0,
+      "type": "frame",
+      "lane": 2,
+      "frame": {
+        "raw": 80,
+        "sequence": 1,
+        "received": 0,
+        "generation": 0,
+        "connected": true,
+        "worn": true,
+        "state": "normal"
+      }
+    },
+    {
+      "t": 0,
+      "type": "intent",
+      "action": "start"
+    },
+    {
+      "t": 0.1,
+      "type": "tick"
+    },
+    {
+      "t": 0.25,
+      "type": "frame",
+      "lane": 1,
+      "frame": {
+        "raw": 80,
+        "sequence": 2,
+        "received": 0.25,
+        "generation": 0,
+        "connected": true,
+        "worn": true,
+        "state": "normal"
+      }
+    },
+    {
+      "t": 0.25,
+      "type": "frame",
+      "lane": 2,
+      "frame": {
+        "raw": 80,
+        "sequence": 2,
+        "received": 0.25,
+        "generation": 0,
+        "connected": true,
+        "worn": true,
+        "state": "normal"
+      }
+    },
+    {
+      "t": 0.5,
+      "type": "frame",
+      "lane": 1,
+      "frame": {
+        "raw": 80,
+        "sequence": 2,
+        "received": 0.5,
+        "generation": 0,
+        "connected": true,
+        "worn": true,
+        "state": "normal"
+      }
+    },
+    {
+      "t": 0.5,
+      "type": "frame",
+      "lane": 2,
+      "frame": {
+        "raw": 80,
+        "sequence": 2,
+        "received": 0.5,
+        "generation": 0,
+        "connected": true,
+        "worn": true,
+        "state": "normal"
+      }
+    },
+    {
+      "t": 0.75,
+      "type": "frame",
+      "lane": 1,
+      "frame": {
+        "raw": 80,
+        "sequence": 2,
+        "received": 0.75,
+        "generation": 0,
+        "connected": true,
+        "worn": true,
+        "state": "normal"
+      }
+    },
+    {
+      "t": 0.75,
+      "type": "frame",
+      "lane": 2,
+      "frame": {
+        "raw": 80,
+        "sequence": 2,
+        "received": 0.75,
+        "generation": 0,
+        "connected": true,
+        "worn": true,
+        "state": "normal"
+      }
+    },
+    {
+      "t": 2,
+      "type": "tick"
+    }
+  ],
+  "stale_data": [
+    {
+      "t": 0,
+      "type": "frame",
+      "lane": 1,
+      "frame": {
+        "raw": 80,
+        "sequence": 1,
+        "received": 0,
+        "generation": 0,
+        "connected": true,
+        "worn": true,
+        "state": "normal"
+      }
+    },
+    {
+      "t": 0,
+      "type": "frame",
+      "lane": 2,
+      "frame": {
+        "raw": 80,
+        "sequence": 1,
+        "received": 0,
+        "generation": 0,
+        "connected": true,
+        "worn": true,
+        "state": "normal"
+      }
+    },
+    {
+      "t": 0,
+      "type": "intent",
+      "action": "start"
+    },
+    {
+      "t": 0.1,
+      "type": "tick"
+    },
+    {
+      "t": 5,
+      "type": "tick"
+    }
+  ],
+  "pause_resume": [
+    {
+      "t": 0,
+      "type": "frame",
+      "lane": 1,
+      "frame": {
+        "raw": 80,
+        "sequence": 1,
+        "received": 0,
+        "generation": 0,
+        "connected": true,
+        "worn": true,
+        "state": "normal"
+      }
+    },
+    {
+      "t": 0,
+      "type": "frame",
+      "lane": 2,
+      "frame": {
+        "raw": 80,
+        "sequence": 1,
+        "received": 0,
+        "generation": 0,
+        "connected": true,
+        "worn": true,
+        "state": "normal"
+      }
+    },
+    {
+      "t": 0,
+      "type": "intent",
+      "action": "start"
+    },
+    {
+      "t": 0.1,
+      "type": "tick"
+    },
+    {
+      "t": 0.25,
+      "type": "frame",
+      "lane": 1,
+      "frame": {
+        "raw": 80,
+        "sequence": 2,
+        "received": 0.25,
+        "generation": 0,
+        "connected": true,
+        "worn": true,
+        "state": "normal"
+      }
+    },
+    {
+      "t": 0.25,
+      "type": "frame",
+      "lane": 2,
+      "frame": {
+        "raw": 80,
+        "sequence": 2,
+        "received": 0.25,
+        "generation": 0,
+        "connected": true,
+        "worn": true,
+        "state": "normal"
+      }
+    },
+    {
+      "t": 0.5,
+      "type": "intent",
+      "action": "pause"
+    },
+    {
+      "t": 1,
+      "type": "tick"
+    },
+    {
+      "t": 1,
+      "type": "frame",
+      "lane": 1,
+      "frame": {
+        "raw": 80,
+        "sequence": 3,
+        "received": 1,
+        "generation": 0,
+        "connected": true,
+        "worn": true,
+        "state": "normal"
+      }
+    },
+    {
+      "t": 1,
+      "type": "frame",
+      "lane": 2,
+      "frame": {
+        "raw": 80,
+        "sequence": 3,
+        "received": 1,
+        "generation": 0,
+        "connected": true,
+        "worn": true,
+        "state": "normal"
+      }
+    },
+    {
+      "t": 1,
+      "type": "intent",
+      "action": "resume"
+    },
+    {
+      "t": 1.1,
+      "type": "tick"
+    },
+    {
+      "t": 1.25,
+      "type": "frame",
+      "lane": 1,
+      "frame": {
+        "raw": 80,
+        "sequence": 4,
+        "received": 1.25,
+        "generation": 0,
+        "connected": true,
+        "worn": true,
+        "state": "normal"
+      }
+    },
+    {
+      "t": 1.25,
+      "type": "frame",
+      "lane": 2,
+      "frame": {
+        "raw": 80,
+        "sequence": 4,
+        "received": 1.25,
+        "generation": 0,
+        "connected": true,
+        "worn": true,
+        "state": "normal"
+      }
+    },
+    {
+      "t": 1.5,
+      "type": "tick"
+    }
+  ],
+  "emergency_late_callback": [
+    {
+      "t": 0,
+      "type": "frame",
+      "lane": 1,
+      "frame": {
+        "raw": 80,
+        "sequence": 1,
+        "received": 0,
+        "generation": 0,
+        "connected": true,
+        "worn": true,
+        "state": "normal"
+      }
+    },
+    {
+      "t": 0,
+      "type": "frame",
+      "lane": 2,
+      "frame": {
+        "raw": 80,
+        "sequence": 1,
+        "received": 0,
+        "generation": 0,
+        "connected": true,
+        "worn": true,
+        "state": "normal"
+      }
+    },
+    {
+      "t": 0,
+      "type": "intent",
+      "action": "start"
+    },
+    {
+      "t": 0.1,
+      "type": "tick"
+    },
+    {
+      "t": 0.5,
+      "type": "intent",
+      "action": "emergency"
+    },
+    {
+      "t": 0.75,
+      "type": "frame",
+      "lane": 1,
+      "frame": {
+        "raw": 80,
+        "sequence": 2,
+        "received": 0.75,
+        "generation": 0,
+        "connected": true,
+        "worn": true,
+        "state": "normal"
+      }
+    },
+    {
+      "t": 0.75,
+      "type": "frame",
+      "lane": 2,
+      "frame": {
+        "raw": 80,
+        "sequence": 2,
+        "received": 0.75,
+        "generation": 0,
+        "connected": true,
+        "worn": true,
+        "state": "normal"
+      }
+    },
+    {
+      "t": 1,
+      "type": "intent",
+      "action": "start"
+    },
+    {
+      "t": 1.25,
+      "type": "intent",
+      "action": "resume",
+      "session_id": "previous-session"
+    },
+    {
+      "t": 2,
+      "type": "tick"
+    }
+  ]
+}

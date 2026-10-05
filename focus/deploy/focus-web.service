@@ -1,0 +1,24 @@
+[Unit]
+Description=Focus training backend and local Web UI
+After=local-fs.target
+
+[Service]
+Type=simple
+User=focus
+SupplementaryGroups=gpio dialout
+WorkingDirectory=/var/lib/focus
+ExecStart=/opt/focus/current/.venv/bin/python /opt/focus/current/app.py web --mode hardware --config /etc/focus/hardware.json --host 127.0.0.1 --web-port 8000
+Restart=on-failure
+RestartSec=2
+NoNewPrivileges=true
+Environment=PYTHONUNBUFFERED=1
+StateDirectory=focus
+UMask=0077
+TimeoutStopSec=10
+KillSignal=SIGINT
+ProtectSystem=strict
+ProtectHome=true
+ReadWritePaths=/var/lib/focus
+
+[Install]
+WantedBy=multi-user.target

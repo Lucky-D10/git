@@ -1,0 +1,116 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1440" height="1240" viewBox="0 0 1440 1240" role="img" aria-labelledby="title desc">
+<title id="title">FOCUS 完整页面流程图</title><desc id="desc">学生从首页选择单人训练、双人训练或竞速，确认玩家、设备就绪并倒计时后进入游戏；完成后查看成果与历史。暂停、断连和急停分别处理。教师设置与系统维护使用独立入口。</desc>
+<defs><marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0L10 5L0 10Z" fill="#7290ac"/></marker></defs>
+<style>text{font-family:system-ui,'Microsoft YaHei',sans-serif;fill:#173350}.title{font-size:30px;font-weight:750}.sub{font-size:16px;fill:#56708a}.nodeTitle{font-size:20px;font-weight:700}.nodeSub{font-size:15px;fill:#56708a}.line{fill:none;stroke:#7290ac;stroke-width:2.5;marker-end:url(#arrow)}.label{font-size:14px;fill:#56708a}</style>
+<rect width="1440" height="1240" fill="#f1f7fd"/>
+<text x="42" y="50" class="title">FOCUS · 完整页面流程</text>
+<text x="42" y="80" class="sub">页面编号对应 6 组样图 · 点击节点查看对应设计组 · 三种玩法沿用后台规则</text>
+<a href="index.html#01-entry" target="_top"><rect x="40" y="112" width="200" height="86" rx="15" fill="white" stroke="#cbddeb"/><rect x="40" y="129" width="5" height="52" rx="2" fill="#258bff"/>
+<text x="58" y="146" class="nodeTitle">A01 等待启动</text>
+<text x="58" y="173" class="nodeSub">后台就绪后进入</text>
+</a>
+<a href="index.html#01-entry" target="_top"><rect x="292" y="112" width="210" height="86" rx="15" fill="white" stroke="#cbddeb"/><rect x="292" y="129" width="5" height="52" rx="2" fill="#258bff"/>
+<text x="310" y="146" class="nodeTitle">A02 首页</text>
+<text x="310" y="173" class="nodeSub">训练 / 竞速 / 记录</text>
+</a>
+<a href="index.html#01-entry" target="_top"><rect x="568" y="112" width="320" height="86" rx="15" fill="white" stroke="#cbddeb"/><rect x="568" y="129" width="5" height="52" rx="2" fill="#258bff"/>
+<text x="586" y="146" class="nodeTitle">A03–A04 选择与确认</text>
+<text x="586" y="173" class="nodeSub">训练选人数；竞速固定双人</text>
+</a>
+<a href="index.html#02-ready" target="_top"><rect x="970" y="112" width="420" height="86" rx="15" fill="white" stroke="#cbddeb"/><rect x="970" y="129" width="5" height="52" rx="2" fill="#258bff"/>
+<text x="988" y="146" class="nodeTitle">B01–B02 设备准备</text>
+<text x="988" y="173" class="nodeSub">检查连接、佩戴、校准和数据新鲜度</text>
+</a>
+<path d="M240 155 H292" class="line"/>
+<path d="M502 155 H568" class="line"/>
+<path d="M888 155 H970" class="line"/>
+<a href="index.html#02-ready" target="_top"><rect x="970" y="235" width="420" height="86" rx="15" fill="white" stroke="#cbddeb"/><rect x="970" y="252" width="5" height="52" rx="2" fill="#258bff"/>
+<text x="988" y="269" class="nodeTitle">B03–B04 统一倒计时</text>
+<text x="988" y="296" class="nodeSub">指定玩家全部就绪 + 后台允许</text>
+</a>
+<path d="M1180 198 V235" class="line"/>
+<text x="48" y="282" class="sub">未就绪：留在准备页说明原因；倒计时异常：停止倒计时，重新检查。</text>
+<path d="M1180 321 V350 H252 M700 350 H1180" fill="none" stroke="#7290ac" stroke-width="2.5"/>
+<path d="M253 350 V384" class="line"/>
+<a href="index.html#03-play" target="_top"><rect x="90" y="384" width="326" height="86" rx="15" fill="white" stroke="#cbddeb"/><rect x="90" y="401" width="5" height="52" rx="2" fill="#258bff"/>
+<text x="108" y="418" class="nodeTitle">C01 单人训练</text>
+<text x="108" y="445" class="nodeSub">1 个仪表盘 + 个人趋势</text>
+</a>
+<path d="M701 350 V384" class="line"/>
+<a href="index.html#03-play" target="_top"><rect x="538" y="384" width="326" height="86" rx="15" fill="white" stroke="#cbddeb"/><rect x="538" y="401" width="5" height="52" rx="2" fill="#258bff"/>
+<text x="556" y="418" class="nodeTitle">C02 双人训练</text>
+<text x="556" y="445" class="nodeSub">2 个仪表盘 + 各自目标</text>
+</a>
+<path d="M1149 350 V384" class="line"/>
+<a href="index.html#03-play" target="_top"><rect x="986" y="384" width="326" height="86" rx="15" fill="white" stroke="#cbddeb"/><rect x="986" y="401" width="5" height="52" rx="2" fill="#f69a35"/>
+<text x="1004" y="418" class="nodeTitle">C03 双人竞速</text>
+<text x="1004" y="445" class="nodeSub">2 辆小车 + 双车道</text>
+</a>
+<path d="M253 470 V529" class="line"/>
+<text x="104" y="505" class="label">自然完成或 C04 确认结束</text>
+<a href="index.html#05-results" target="_top"><rect x="90" y="529" width="326" height="86" rx="15" fill="white" stroke="#cbddeb"/><rect x="90" y="546" width="5" height="52" rx="2" fill="#258bff"/>
+<text x="108" y="563" class="nodeTitle">E01 单人成果</text>
+<text x="108" y="590" class="nodeSub">个人指标，不生成能力评价</text>
+</a>
+<path d="M701 470 V529" class="line"/>
+<text x="552" y="505" class="label">自然完成或 C04 确认结束</text>
+<a href="index.html#05-results" target="_top"><rect x="538" y="529" width="326" height="86" rx="15" fill="white" stroke="#cbddeb"/><rect x="538" y="546" width="5" height="52" rx="2" fill="#258bff"/>
+<text x="556" y="563" class="nodeTitle">E02 双人成果</text>
+<text x="556" y="590" class="nodeSub">分别回顾，不默认排名</text>
+</a>
+<path d="M1149 470 V529" class="line"/>
+<text x="1000" y="505" class="label">自然完成或 C04 确认结束</text>
+<a href="index.html#05-results" target="_top"><rect x="986" y="529" width="326" height="86" rx="15" fill="white" stroke="#cbddeb"/><rect x="986" y="546" width="5" height="52" rx="2" fill="#f69a35"/>
+<text x="1004" y="563" class="nodeTitle">E03 竞速结果</text>
+<text x="1004" y="590" class="nodeSub">胜负 / 平局；注明虚拟成绩</text>
+</a>
+<path d="M253 615 V647 H1149 V615 M701 615 V647" fill="none" stroke="#7290ac" stroke-width="2.5"/>
+<path d="M701 647 V678" class="line"/>
+<a href="index.html#06-teacher" target="_top"><rect x="486" y="678" width="430" height="86" rx="15" fill="white" stroke="#cbddeb"/><rect x="486" y="695" width="5" height="52" rx="2" fill="#258bff"/>
+<text x="504" y="712" class="nodeTitle">F01 历史 → F02 详细报告</text>
+<text x="504" y="739" class="nodeSub">按玩家与条件查询；完整保存后导出</text>
+</a>
+<a href="index.html#05-results" target="_top"><rect x="970" y="678" width="420" height="86" rx="15" fill="white" stroke="#cbddeb"/><rect x="970" y="695" width="5" height="52" rx="2" fill="#dc992d"/>
+<text x="988" y="712" class="nodeTitle">E04 报告异常状态</text>
+<text x="988" y="739" class="nodeSub">样本不足与保存失败分别表达</text>
+</a>
+<path d="M1149 647 H1180 V678" class="line"/>
+<text x="48" y="719" class="sub">再来一次 → 玩家确认与设备准备</text>
+<text x="48" y="749" class="sub">回到首页 → A02；不自动开始新一场</text>
+<rect x="30" y="794" width="1380" height="225" rx="20" fill="#e7f0fa"/>
+<text x="49" y="829" class="nodeTitle">游戏过程中：按异常类型处理，不自动跳过安全检查</text>
+<a href="index.html#04-states" target="_top"><rect x="49" y="849" width="310" height="86" rx="15" fill="white" stroke="#cbddeb"/><rect x="49" y="866" width="5" height="52" rx="2" fill="#258bff"/>
+<text x="67" y="883" class="nodeTitle">D01 手动暂停</text>
+<text x="67" y="910" class="nodeSub">动力归零；暂停不计有效时长</text>
+</a>
+<a href="index.html#04-states" target="_top"><rect x="392" y="849" width="310" height="86" rx="15" fill="white" stroke="#cbddeb"/><rect x="392" y="866" width="5" height="52" rx="2" fill="#e39b27"/>
+<text x="410" y="883" class="nodeTitle">D02 单路无信号</text>
+<text x="410" y="910" class="nodeSub">该路停止，另一玩家继续</text>
+</a>
+<a href="index.html#04-states" target="_top"><rect x="735" y="849" width="310" height="86" rx="15" fill="white" stroke="#cbddeb"/><rect x="735" y="866" width="5" height="52" rx="2" fill="#e39b27"/>
+<text x="753" y="883" class="nodeTitle">D03 页面失联</text>
+<text x="753" y="910" class="nodeSub">禁用操作；后台按超时停输出</text>
+</a>
+<a href="index.html#04-states" target="_top"><rect x="1078" y="849" width="310" height="86" rx="15" fill="white" stroke="#cbddeb"/><rect x="1078" y="866" width="5" height="52" rx="2" fill="#d85865"/>
+<text x="1096" y="883" class="nodeTitle">D04 急停锁定</text>
+<text x="1096" y="910" class="nodeSub">全部停输出；老师排查并复位</text>
+</a>
+<text x="49" y="970" class="sub">暂停恢复：手动继续 → 就绪检查 → 倒计时；重连不自动恢复动力。</text>
+<text x="49" y="997" class="sub">急停复位：返回准备再开始；双路无信号按本轮固定规则处理（体验继续计时 / 正式中断）。</text>
+<a href="index.html#01-entry" target="_top"><rect x="49" y="1054" width="340" height="86" rx="15" fill="white" stroke="#cbddeb"/><rect x="49" y="1071" width="5" height="52" rx="2" fill="#258bff"/>
+<text x="67" y="1088" class="nodeTitle">教师入口</text>
+<text x="67" y="1115" class="nodeSub">从 A02 首页进入</text>
+</a>
+<a href="index.html#06-teacher" target="_top"><rect x="485" y="1054" width="420" height="86" rx="15" fill="white" stroke="#cbddeb"/><rect x="485" y="1071" width="5" height="52" rx="2" fill="#258bff"/>
+<text x="503" y="1088" class="nodeTitle">F03 教师设置</text>
+<text x="503" y="1115" class="nodeSub">时长 / 个人目标 / 规则；开场固定</text>
+</a>
+<a href="index.html#06-teacher" target="_top"><rect x="975" y="1054" width="415" height="86" rx="15" fill="white" stroke="#cbddeb"/><rect x="975" y="1071" width="5" height="52" rx="2" fill="#258bff"/>
+<text x="993" y="1088" class="nodeTitle">F04 系统维护</text>
+<text x="993" y="1115" class="nodeSub">设备 / 模式 / 日志 / 配置与版本</text>
+</a>
+<path d="M389 1097 H485" class="line"/>
+<path d="M219 1140 V1160 H1182 V1140" class="line"/>
+<text x="49" y="1190" class="sub">模式、个人目标、保护状态与结果均来自后台；画面动画只负责展示。</text>
+<text x="49" y="1219" class="sub">设计概念稿 · 样图数值为示例 · 并非现有运行页面截图</text>
+</svg>
