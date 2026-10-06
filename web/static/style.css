@@ -14,3 +14,18 @@
 @media(max-width:999px){.training-card .gauge{height:113px}.training-card .mini-plot{height:59px}.training-card .streak-line{margin:4px 0}}
 .small-button{min-height:44px}.page-heading>h1:last-child{margin-left:0}
 @media(prefers-reduced-motion:reduce){*{transition:none!important;scroll-behavior:auto!important}}
+/* Post-session analysis remains in the scrollable details page. */
+#analysis-card{margin-top:16px}
+.analysis-metrics{display:flex;flex-wrap:wrap;gap:12px;margin:12px 0}
+.analysis-metrics span{background:#edf5fc;padding:10px;border-radius:12px}
+.analysis-metrics b{display:block;font-size:20px}
+.ai-explanation{border-left:3px solid #148cff;padding-left:14px}
+.practice-goal{background:#edf5fc;border-radius:12px;padding:4px 16px 12px;margin-top:16px}
+.goal-reason{font-size:12px;color:#526c85}
+.practice-steps{padding-left:22px}.practice-steps li{margin:10px 0}
+.practice-encouragement{background:#edf9f2;border-radius:12px;padding:14px 16px}
+#analysis-content h3{margin:16px 0 8px}
+#analysis-content p,#analysis-content li{line-height:1.6}
+#staff-dialog{max-width:420px;border:0;border-radius:20px;padding:24px}
+#staff-dialog input{display:block;width:100%;box-sizing:border-box;margin-top:8px}
+#staff-error{color:#b42318}

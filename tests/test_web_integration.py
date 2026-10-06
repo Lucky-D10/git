@@ -45,7 +45,7 @@ class WebIntegrationTests(unittest.TestCase):
         self.feeder = threading.Thread(target=feeder,daemon=True)
         self.feeder.start()
         self.addCleanup(lambda:(self.stop.set(),self.feeder.join()))
-        self.client = TestClient(create_app(self.service,self.lease))
+        self.client = TestClient(create_app(self.service,self.lease,staff_pin="test-pin-123"))
         self.addCleanup(self.client.close)
         self.headers = {"Origin":"http://127.0.0.1:8000","X-Focus-Client":"web"}
 
@@ -116,6 +116,8 @@ class WebIntegrationTests(unittest.TestCase):
             self.assertEqual(preferences(self.service.store.path), preset)
             self.assertEqual(self.service.engine.duration, original)
             player = {"id": "local-1", "nickname": "蓝色伙伴", "avatar": "leaf"}
+            staff = self.post("/api/staff/unlock", {"token": token, "pin": "test-pin-123"}).json()["staff_token"]
+            self.headers["X-Focus-Staff"] = staff
             result = self.post("/api/players", {"token": token, "player": player})
             self.assertEqual(result.status_code, 200, result.text)
             self.assertIn(player, players(self.service.store.path))

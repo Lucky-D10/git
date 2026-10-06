@@ -19,7 +19,7 @@ def preferences(path):
 def players(path):
     with closing(_read_only(path)) as db:
         rows = db.execute("SELECT p.id,p.nickname,COALESCE(a.avatar,'wave') FROM players p "
-                          "LEFT JOIN player_profiles a ON a.player_id=p.id ORDER BY p.id LIMIT 200").fetchall()
+                          "LEFT JOIN player_profiles a ON a.player_id=p.id WHERE p.id NOT LIKE 'guest-%' ORDER BY p.id LIMIT 200").fetchall()
     result = [{"id": pid, "nickname": nick or ({"local-1": "小蓝", "local-2": "小橙"}.get(pid, pid)),
                "avatar": avatar} for pid, nick, avatar in rows]
     ids = {p["id"] for p in result}
@@ -54,6 +54,8 @@ def save_player(path, value):
     if not isinstance(value, dict) or set(value) != {"id", "nickname", "avatar"}:
         raise ValueError("玩家资料字段无效")
     pid, nick, avatar = value["id"], value["nickname"], value["avatar"]
+    if isinstance(pid, str) and pid.startswith("guest-"):
+        raise ValueError("临时访客不能修改为长期档案")
     if not isinstance(pid, str) or not pid.strip() or len(pid) > 48:
         raise ValueError("玩家编号须为 1..48 字符")
     if not isinstance(nick, str) or not nick.strip() or len(nick) > 20 or not isinstance(avatar, str) or avatar not in AVATARS:

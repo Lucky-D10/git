@@ -11,6 +11,7 @@ import time
 import os
 from contextlib import closing
 import logging
+from .visitors import SCHEMA as VISITOR_SCHEMA
 
 
 def dumps(value):
@@ -107,6 +108,9 @@ class Store:
             db.execute("PRAGMA synchronous=FULL")
             db.execute("PRAGMA foreign_keys=ON")
             db.executescript(SCHEMA)
+            db.executescript(VISITOR_SCHEMA)
+            from ai.worker import SCHEMA as ANALYSIS_SCHEMA
+            db.executescript(ANALYSIS_SCHEMA)
             now = utc_now()
             interrupted = db.execute("SELECT id FROM sessions WHERE complete=0 AND end_reason IS NOT 'process_restart'").fetchall()
             for (sid,) in interrupted:
@@ -172,6 +176,13 @@ class Store:
                 player_id = batch.get("player_ids", ["local-1", "local-2"])[lane-1]
                 db.execute("INSERT OR IGNORE INTO players(id) VALUES(?)", (player_id,))
                 db.execute("INSERT INTO participants VALUES(?,?,?)", (sid, lane, player_id))
+                visit_id = c.get("visit_ids", [None] * c["config"]["players"])[lane-1]
+                if visit_id:
+                    db.execute("INSERT OR IGNORE INTO visits VALUES(?,?,?,NULL)", (visit_id, player_id, start))
+                participant_id = c.get("participant_ids", [sid + "-" + str(i) for i in range(c["config"]["players"])])[lane-1]
+                db.execute("INSERT INTO participant_identity VALUES(?,?,?,?,?)", (sid, lane, participant_id, visit_id, c.get("identity_kind", "legacy_unverified")))
+        for visit_id in batch.get("closed_visits", []):
+            db.execute("UPDATE visits SET closed_utc=COALESCE(closed_utc,?) WHERE id=?", (utc_now(), visit_id))
         for row in batch["journal"]:
             db.execute("INSERT INTO journal VALUES(?,?,?,?,?,?)", (sid, row["ordinal"], row["t"], wall(row["t"]), row["kind"], dumps(row["payload"])))
         for row in batch["samples"]:
@@ -184,7 +195,11 @@ class Store:
         db.execute("UPDATE sessions SET status=?,end_reason=?,ended_utc=?,complete=? WHERE id=?", (snap["state"], snap["reason"], wall(snap["now"]) if terminal else None, int(terminal and not batch.get("incomplete")), sid))
         for lane in snap["players"]:
             db.execute("INSERT OR REPLACE INTO statistics VALUES(?,?,?)", (sid, lane["player"], dumps(lane)))
-        db.execute("INSERT OR REPLACE INTO reports VALUES(?,?,?,?,NULL)", (sid, snap["algorithm"], "incomplete" if batch.get("incomplete") else "ready" if terminal else "pending", dumps(snap)))
+        db.execute("INSERT INTO reports VALUES(?,?,?,?,NULL) ON CONFLICT(session_id) DO UPDATE SET version=excluded.version,status=excluded.status,base_json=excluded.base_json", (sid, snap["algorithm"], "incomplete" if batch.get("incomplete") else "ready" if terminal else "pending", dumps(snap)))
+        if terminal and not batch.get("incomplete") and snap.get("elapsed", 0) > 0:
+            # Jobs become visible in the SAME commit as the final records.
+            for (participant_id,) in db.execute("SELECT participant_id FROM participant_identity WHERE session_id=?", (sid,)).fetchall():
+                db.execute("INSERT OR IGNORE INTO analysis_jobs(participant_id,session_id,status) VALUES(?,?,'pending')", (participant_id, sid))
 
     def close(self):
         self.stopping.set()

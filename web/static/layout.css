@@ -5,6 +5,7 @@ body { padding-block: var(--frame-top,0px); background: radial-gradient(ellipse 
 body[data-framed="true"] .app-shell { outline: 1px solid #dbe8f6; border-radius: 18px; box-shadow: 0 18px 65px #335a8520; }
 body[data-framed="true"] .app-header { border-radius: 18px 18px 0 0; }
 .page { width: 100%; max-width: none; }
+.app-shell[data-layout="landscape"] .player-select-card .portrait-art { height: 106px; }
 .app-header { gap: 10px; }
 .app-shell .connection-overlay { position: absolute; top: 58px; min-height: 422px; border-radius: 0 0 18px 18px; }
 .app-shell .toast { position: absolute; top: 65px; }

@@ -17,5 +17,5 @@ Object.assign(labels,{
  baseline:'基线采集中',normal:'设备校准完成',off:'尚未准备好'
 });
 export const describe = value => labels[value] || value || '';
-export function setText(id, text) {const el=$(id);if(el&&el.textContent!==String(text))el.textContent=text;}
-export function setHtml(id, html) {const el=$(id);if(el&&el._html!==html){el.innerHTML=html;el._html=html;}}
+export function setText(id, text) {const el=$(id);if(el&&el.textContent!==String(text)){el.textContent=text;delete el._html;}}
+export function setHtml(id, html) {const el=$(id);if(el&&(el._html!==html||(html===''&&el.hasChildNodes()))){el.innerHTML=html;el._html=html;}}

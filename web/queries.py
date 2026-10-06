@@ -60,7 +60,9 @@ def thin(points, size=1600):
 
 
 def report_data(path, sid):
+    from ai.worker import read_analysis
     report = read_report(path, sid)
+    report["analysis"] = read_analysis(path, sid)
     with closing(_read_only(path)) as db:
         status = db.execute("SELECT status,end_reason FROM sessions WHERE id=?", (sid,)).fetchone()
         if status and status[1] == 'process_restart':

@@ -16,13 +16,14 @@ from fastapi.staticfiles import StaticFiles
 from starlette.middleware.trustedhost import TrustedHostMiddleware
 from .runtime import OperatorLease
 from .serializers import clean
+from .access import ReportAccess
 
 ROOT = Path(__file__).resolve().parent
-ACTIONS = {"prepare", "start", "pause", "resume", "end", "emergency", "reset"}
-OPTIONS = {"activity", "duration", "distance", "players", "references", "bindings", "player_ids", "session_kind", "confirmed"}
+ACTIONS = {"prepare", "start", "pause", "resume", "end", "emergency", "reset", "finish_visit"}
+OPTIONS = {"activity", "duration", "distance", "players", "references", "bindings", "player_ids", "session_kind", "confirmed", "visit_action", "continuing_lanes"}
 
 
-def create_app(service, lease=None, port=8000):
+def create_app(service, lease=None, port=8000, staff_pin=None):
     lease = lease or service.operator or OperatorLease(service.config.operator_timeout)
     service.operator = lease
     app = FastAPI(title="Focus Local", version="youth-ui-v2", docs_url=None, redoc_url=None)
@@ -31,6 +32,7 @@ def create_app(service, lease=None, port=8000):
     origins = {f"http://127.0.0.1:{port}", f"http://localhost:{port}"}
     exports = Path(service.store.path).parent / "exports"
     render_latencies = deque(maxlen=2000)
+    access = ReportAccess(service, staff_pin)
 
     @app.middleware("http")
     async def local_access(request: Request, call_next):
@@ -53,6 +55,16 @@ def create_app(service, lease=None, port=8000):
 
     def current():
         state = service.snapshot()
+        if not state.get("visit_open", True):
+            from dataclasses import asdict
+            from backend.engine import Lane
+            # Closing a visit revokes live snapshot data as well as saved reports.
+            state["players"] = [{**asdict(Lane()), "player": i+1, "average": None,
+                                 "stable_ratio": None, "trend": None, "data_status": "到访已结束"}
+                                for i in range(len(state["players"]))]
+            state.update(player_ids=[""]*len(state["players"]), visit_ids=[], participant_ids=[],
+                         events=[], chart_points=[[] for _ in state["players"]], elapsed=0,
+                         result=None, sample_ages_ms=[None]*len(state["players"]))
         state["operator"] = lease.status()
         state["control_alive"] = service.thread.is_alive() and not service.failed
         return clean(state)
@@ -85,9 +97,20 @@ def create_app(service, lease=None, port=8000):
         return {"ok": True, "preset": preferences(service.store.path)}
 
     @app.get("/api/players")
-    def players():
+    def players(request: Request):
         from .preferences import players
-        return {"ok": True, "players": players(service.store.path)}
+        if access.staff(request):
+            return {"ok": True, "players": players(service.store.path), "staff": True}
+        s = current()
+        return {"ok": True, "staff": False, "players": [
+            {"id": pid, "nickname": "蓝色访客" if i == 0 else "橙色访客", "avatar": "wave" if i == 0 else "star"}
+            for i, pid in enumerate(s["player_ids"]) if s.get("visit_open") and s.get("visitor_mode")]}
+
+    @app.post("/api/staff/unlock")
+    def unlock(payload: dict):
+        if not lease.authorized(payload.get("token")):
+            raise HTTPException(403, "operator_required")
+        return {"ok": True, "staff_token": access.unlock(payload.get("pin"))}
 
     def settings_access(payload):
         if not lease.authorized(payload.get("token")):
@@ -110,9 +133,10 @@ def create_app(service, lease=None, port=8000):
             raise HTTPException(503, "storage_write_failed")
 
     @app.post("/api/players")
-    def save_player(payload: dict):
+    def save_player(payload: dict, request: Request):
         from .preferences import save_player
         settings_access(payload)
+        access.require_staff(request)
         try:
             return {"ok": True, "player": save_player(service.store.path, payload.get("player", {}))}
         except (ValueError, TypeError) as exc:
@@ -125,7 +149,7 @@ def create_app(service, lease=None, port=8000):
         return {"ok": lease.release(payload.get("token"))}
 
     @app.post("/api/session/{sid}/action")
-    async def action(sid: str, payload: dict):
+    async def action(sid: str, payload: dict, request: Request):
         action, request_id = payload.get("action"), payload.get("request_id")
         if action not in ACTIONS or not isinstance(request_id, str) or not 1 <= len(request_id) <= 100:
             raise HTTPException(400, "invalid_action_or_request_id")
@@ -135,6 +159,8 @@ def create_app(service, lease=None, port=8000):
         options = {k: v for k, v in payload.items() if k not in {"action", "request_id", "token"}}
         if not set(options).issubset(OPTIONS):
             raise HTTPException(400, "unknown_option")
+        if "player_ids" in options:
+            access.require_staff(request)
         future = service.request(request_id, action, sid, token, **options)
         try:
             # Shield: timeout/disconnection cannot cancel a future owned by control.
@@ -143,24 +169,27 @@ def create_app(service, lease=None, port=8000):
             return JSONResponse({"ok": False, "reason": "result_pending_retry_same_id", "request_id": request_id}, status_code=202)
 
     @app.get("/api/sessions")
-    def history(player_id: Optional[str] = None, date_from: Optional[str] = None,
+    def history(request: Request, player_id: Optional[str] = None, date_from: Optional[str] = None,
                 date_to: Optional[str] = None, condition: Optional[str] = None, limit: int = 50):
         from .queries import history_rows
         try:
-            return {"ok": True, "sessions": history_rows(service.store.path, player_id, date_from, date_to, condition, limit)}
+            rows = history_rows(service.store.path, player_id, date_from, date_to, condition, limit)
+            return {"ok": True, "sessions": [r for r in rows if access.allowed(r["session_id"], request)], "staff": access.staff(request)}
         except ValueError:
             raise HTTPException(400, "日期必须为 YYYY-MM-DD")
 
     @app.get("/api/sessions/{sid}/report")
-    def report(sid: str):
+    def report(sid: str, request: Request):
         from .queries import report_data
+        access.require_report(sid, request)
         try:
             return {"ok": True, "report": clean(report_data(service.store.path, sid))}
         except KeyError:
             raise HTTPException(404, "report_not_ready")
 
     @app.post("/api/sessions/{sid}/export")
-    async def export(sid: str, payload: dict):
+    async def export(sid: str, payload: dict, request: Request):
+        access.require_report(sid, request)
         if not lease.authorized(payload.get("token")):
             raise HTTPException(403, "operator_required")
         if len(sid) != 32 or any(c not in "0123456789abcdef" for c in sid):
@@ -172,10 +201,22 @@ def create_app(service, lease=None, port=8000):
             raise HTTPException(409, str(exc))
 
     @app.get("/api/download/{name}")
-    def download(name: str):
+    def download(name: str, request: Request):
         if Path(name).name != name or Path(name).suffix not in (".csv", ".json") or not (exports / name).is_file():
             raise HTTPException(404, "file_not_found")
+        access.require_report(Path(name).stem, request)
         return FileResponse(exports / name, filename=name)
+
+    @app.post("/api/sessions/{sid}/analysis/retry")
+    def retry_analysis(sid: str, payload: dict, request: Request):
+        from contextlib import closing
+        access.require_report(sid, request)
+        if not lease.authorized(payload.get("token")):
+            raise HTTPException(403, "operator_required")
+        # Bounded retries across requests and restarts, no duplicate cloud jobs.
+        with closing(sqlite3.connect(str(service.store.path), timeout=.1)) as db, db:
+            count = db.execute("UPDATE analysis_jobs SET status='ai_pending',next_attempt=0 WHERE session_id=? AND status='template' AND attempts<2 AND error IS NOT NULL", (sid,)).rowcount
+        return {"ok": True, "queued": count}
 
     @app.get("/api/maintenance")
     def maintenance():
