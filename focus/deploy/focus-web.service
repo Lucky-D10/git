@@ -12,9 +12,10 @@ Restart=on-failure
 RestartSec=2
 NoNewPrivileges=true
 Environment=PYTHONUNBUFFERED=1
+EnvironmentFile=-/etc/focus/ai.env
 StateDirectory=focus
 UMask=0077
-TimeoutStopSec=10
+TimeoutStopSec=45
 KillSignal=SIGINT
 ProtectSystem=strict
 ProtectHome=true

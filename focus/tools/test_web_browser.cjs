@@ -9,6 +9,8 @@ const fs=require('fs'),path=require('path'),assert=require('assert');
  await context.route('**/*',r=>new URL(r.request().url()).origin===url?r.continue():(external.push(r.request().url()),r.abort()));
  const snapshot=async()=>(await(await page.request.get(url+'/api/session')).json()).snapshot;
  async function capture(name,fit=true){
+  // Let the route render and ResizeObserver update the scaled frame first.
+  await page.evaluate(()=>new Promise(resolve=>requestAnimationFrame(()=>requestAnimationFrame(resolve))));
   const dimensions=await page.evaluate(()=>({width:document.documentElement.scrollWidth,height:document.documentElement.scrollHeight}));
   const overflow=fit&&(dimensions.width>800||dimensions.height>480);
   await page.screenshot({path:path.join(out,name+'-800x480.png'),fullPage:!fit||overflow});
@@ -23,6 +25,7 @@ const fs=require('fs'),path=require('path'),assert=require('assert');
  async function start(activity='training',players=1){
   await nav('home');await page.locator('[data-prepare="'+activity+'"]').click();
   if(activity==='training'){await page.locator('[data-players="'+players+'"]').click();await capture('choose');await page.locator('#choose-next').click();}
+  await page.locator('#players:visible').waitFor();
   await capture('players-'+players);await page.locator('#prepare-submit:not([disabled])').click();
   await page.locator('#start:not([disabled])').waitFor();await capture('prepare-'+players);
   await page.locator('#start').click();await page.locator('#overlay-card.countdown:visible').waitFor();await capture('countdown-'+activity+'-'+players);await running();await page.waitForTimeout(1000);
@@ -41,11 +44,8 @@ const fs=require('fs'),path=require('path'),assert=require('assert');
   await page.locator('#teacher-form button.primary').click();await page.waitForFunction(()=>document.querySelector('#settings-status').textContent.includes('已保存'));
   await capture('teacher',false);
   assert(await page.locator('#teacher-form button.primary').evaluate(el=>el.getBoundingClientRect().bottom<=480),'save settings stays in the first screen');
-  await page.locator('#profile-details > summary').click();
-  await page.locator('#profile-select').selectOption('local-1');await page.locator('#profile-form [name=nickname]').fill('小蓝');
-  await page.locator('#profile-form button.primary').click();await page.waitForFunction(()=>document.querySelector('#profile-status').textContent.includes('已保存'));
-  await page.locator('#profile-details > summary').click();
-  await nav('maintenance');await capture('maintenance',true);
+  assert(await page.locator('#add-player').isDisabled(),'guest mode does not edit persistent profiles');
+  await nav('maintenance');await page.locator('#maintenance-status .card').first().waitFor();await capture('maintenance',true);
   await start('training',1);await capture('training-solo');
   let sid=(await snapshot()).session_id;assert.equal((await snapshot()).players.length,1);
   await page.locator('#pause').click();await page.waitForFunction(()=>document.querySelector('#state-label').textContent==='已暂停');await capture('paused');
@@ -65,6 +65,7 @@ const fs=require('fs'),path=require('path'),assert=require('assert');
   await page.locator('#export').click();await page.locator('#downloads a').first().waitFor();
   const download=await page.request.get(new URL(await page.locator('#downloads a').first().getAttribute('href'),url).href);assert.equal(download.status(),200);
   await nav('history');await page.locator('#history-condition option').nth(1).waitFor({state:'attached'});
+  await page.locator('#history-player').selectOption((await snapshot()).player_ids[0]);
   await page.locator('#history-condition').selectOption({index:1});await capture('history',false);
   await page.locator('[data-trend="stable_ratio"]').click();
   assert.equal(await page.evaluate(()=>focusDiagnostics.charts.get('trend-chart').getOption().yAxis[0].max),100);

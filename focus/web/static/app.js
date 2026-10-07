@@ -1,6 +1,7 @@
 import './js/layout.js';
 import {$,escapeHtml as esc,finite,number,clock,duration,icon,avatar,headband,describe,setText,setHtml} from './js/ui.js';
-import {Connection,api} from './js/connection.js';
+import {Connection,api,setStaffToken,requestHeaders} from './js/connection.js';
+import {renderAnalysis,pendingAnalysis} from './js/analysis.js';
 import * as plots from './js/charts.js';
 import {Race,car} from './js/race.js';
 import {portrait,calmArt} from './js/illustrations.js';
@@ -11,13 +12,13 @@ const client=new Connection();
 let page='home',routeEpoch=0,reportId='',report=null,reportRetry,noticeTimer,layoutKey='',plotKey='',race=null,historyRows=[],profileId='local-1';
 let preset={duration:180,distance:100,references:[50,60],bindings:[1,2],session_kind:'experience',reduced_motion:false};
 let profiles=[{id:'local-1',nickname:'小蓝',avatar:'wave'},{id:'local-2',nickname:'小橙',avatar:'star'}];
-let draft={activity:'training',players:1,player_ids:['local-1','local-2']};
+let draft={activity:'training',players:1,visit_action:'new',continuing_lanes:[0,0]},staff=false;
 const liveCharts=['gauge-0','gauge-1','live-plot-0','live-plot-1'];
 const names={home:'专注时光',choose:'专注训练',players:'选择玩家',prepare:'佩戴头环',live:'一起专注',result:'本次收获',report:'练习详情',history:'成长记录',teacher:'老师设置',maintenance:'设备与维护'};
 const state=()=>client.snapshot;
 const active=s=>s&&['countdown','running','paused'].includes(s.state);
-const profile=id=>profiles.find(p=>p.id===id)||{id,nickname:id||'玩家',avatar:'wave'};
-const playerName=(s,i)=>profile(s.player_ids?.[i]).nickname;
+const profile=id=>profiles.find(p=>p.id===id)||{id,nickname:id?.startsWith('guest-')?'临时访客':id||'玩家',avatar:'wave'};
+const playerName=(s,i)=>s.player_ids?.[i]?.startsWith('guest-')?(i?'橙色访客':'蓝色访客'):profile(s.player_ids?.[i]).nickname;
 const idle=()=>state()&&['preparing','finished','aborted'].includes(state().state)&&state().safety==='inhibited'&&!state().record_incomplete;
 const canEdit=()=>client.allowed&&idle();
 const plainSeconds=v=>finite(v)?number(v,1)+' 秒':'暂无足够数据';
@@ -50,11 +51,24 @@ $('confirm-yes').onclick=()=>settleDialog?.(true);
 $('confirm-no').onclick=()=>settleDialog?.(false);
 $('confirm').oncancel=e=>{e.preventDefault();settleDialog?.(false);};
 async function takeControl(){if(client.allowed)return true;try{await client.claim();return true;}catch(e){notify(e.message);return false;}}
-async function begin(activity){
+function clearVisitView(){
+ routeEpoch++;clearTimeout(reportRetry);report=null;reportId='';historyRows=[];staff=false;setStaffToken('');profiles=[];
+ for(const id of ['result-metrics','detail-metrics','analysis-content','history-list','downloads','report-events','review-summary','review-event-key','report-player','result-race'])setHtml(id,'');
+ setText('result-title','正在整理本次记录');setText('report-insight','');
+ plots.dispose(['review-chart','distribution-chart','trend-chart']);
+}
+async function finishVisit(){
+ if(!await takeControl())return;
+ const result=await act('finish_visit');
+ if(result?.ok){clearVisitView();location.replace('#home');route();}
+}
+async function begin(activity,continuing=false){
  if(!state()||!client.fresh)return notify('请等待页面连接恢复。');
  if(active(state())||state().safety!=='inhibited'){navigate('live');return notify('请先结束当前体验，或处理当前锁定状态。');}
  if(!await takeControl())return;
- draft={activity,players:activity==='racing'?2:1,player_ids:['local-1','local-2']};
+ if(!continuing&&state().visit_open){const r=await client.command('finish_visit');if(!r?.ok)return notify(r?.reason||'请重试');clearVisitView();}
+ const n=continuing?state().players.length:activity==='racing'?2:1;
+ draft={activity,players:n,visit_action:continuing?'continue':'new',continuing_lanes:continuing?[1,state().players.length>1?2:0]:[0,0]};
  document.querySelectorAll('[data-players]').forEach(b=>{const selected=+b.dataset.players===draft.players;b.classList.toggle('selected',selected);b.setAttribute('aria-pressed',String(selected));});
  navigate(activity==='racing'?'players':'choose');
 }
@@ -89,15 +103,18 @@ function route(){
  if(page==='history'){fillHistoryPlayers();loadHistory();}
  if(page==='result'||page==='report'){
   const next=parts[1]||state()?.session_id||'';
-  if(reportId!==next){report=null;plots.dispose(['review-chart','distribution-chart']);setText('result-title','正在整理本次记录');setText('report-status','读取中…');setHtml('result-metrics','');setHtml('detail-metrics','');setHtml('review-summary','');setHtml('review-event-key','');setText('report-insight','');setText('detail-status','读取中…');}
+  report=null;plots.dispose(['review-chart','distribution-chart']);setText('result-title','正在整理本次记录');setText('report-status','读取中…');setHtml('result-metrics','');setHtml('detail-metrics','');setHtml('review-summary','');setHtml('review-event-key','');setHtml('analysis-content','');setText('report-insight','');setText('detail-status','读取中…');
   reportId=next;loadReport();
  }
  render();requestAnimationFrame(plots.resize);
 }
 function renderPlayerSelectors(){
  const n=draft.players;const node=$('player-selectors');node.classList.toggle('single',n===1);
- setHtml('player-selectors',Array.from({length:n},(_,i)=>'<article class="card player-select-card '+(i?'orange':'blue')+'"><div class="player-heading">'+'<span id="draft-avatar-'+i+'" class="player-badge">'+avatar(profile(draft.player_ids[i]).avatar,i)+'</span><div><h2>'+(i?'橙色玩家':'蓝色玩家')+'</h2><small>头环 '+preset.bindings[i]+' · 个人目标 '+preset.references[i]+'</small></div></div>'+portrait(i)+'<label><span class="sr-only">选择昵称</span><select id="draft-player-'+i+'" aria-label="玩家 '+(i+1)+'">'+profiles.map(p=>'<option value="'+esc(p.id)+'" '+(p.id===draft.player_ids[i]?'selected':'')+'>'+esc(p.nickname)+'</option>').join('')+'</select></label></article>').join(''));
- for(let i=0;i<n;i++)$('draft-player-'+i).onchange=e=>{draft.player_ids[i]=e.target.value;setHtml('draft-avatar-'+i,avatar(profile(e.target.value).avatar,i));};
+ setHtml('player-selectors',Array.from({length:n},(_,i)=>{
+  const choices=[{id:0,label:'新访客 · 不关联以前记录'},...(draft.visit_action==='continue'?state().players.map((_,j)=>({id:j+1,label:'继续：上一轮'+(j?'橙色':'蓝色')+'访客'})):[])];
+  return '<article class="card player-select-card '+(i?'orange':'blue')+'"><div class="player-heading">'+avatar(i?'star':'wave',i)+'<div><h2>'+(i?'橙色访客':'蓝色访客')+'</h2><small>头环 '+preset.bindings[i]+' · 本轮目标 '+preset.references[i]+'</small></div></div>'+portrait(i)+'<label>参与者<select id="draft-player-'+i+'" aria-label="玩家 '+(i+1)+'">'+choices.map(p=>'<option value="'+p.id+'" '+(p.id===(draft.continuing_lanes[i]||0)?'selected':'')+'>'+p.label+'</option>').join('')+'</select></label></article>';
+ }).join(''));
+ for(let i=0;i<n;i++)$('draft-player-'+i).onchange=e=>{draft.continuing_lanes[i]=+e.target.value;};
  setText('draft-summary',(draft.activity==='racing'?'双人虚拟竞速':n===1?'单人训练':'双人训练')+' · '+duration(preset.duration)+' · '+(preset.session_kind==='formal'?'正式规则':'轻松体验'));
 }
 function renderDevices(s){
@@ -187,8 +204,11 @@ function renderPermissions(){
  $('cancel-countdown').disabled=!normal||s?.state!=='countdown';
  $('overlay-claim').disabled=!client.fresh||!!client.token;
  $('again').disabled=!client.fresh||!idle();
+ $('next-visitor').disabled=!client.fresh||!idle();
  $('export').disabled=!client.allowed||report?.status!=='ready';
  for(const form of ['teacher-form','profile-form','bindings-form'])for(const el of $(form).elements)el.disabled=!canEdit();
+ for(const el of $('profile-form').elements)el.disabled=!canEdit()||!staff;
+ $('add-player').disabled=!canEdit()||!staff;
  setText('settings-hint',!idle()?'请先结束本场，再调整下一场设置。':!client.allowed?'请点击右上角“接管操作”后修改。':'设置仅用于下一场，当前会话规则保持不变。');
  $('release').disabled=!client.allowed;
 }
@@ -203,13 +223,15 @@ function render(){
   if(page==='prepare')renderDevices(s);
   if(page==='live')renderLive(s);
   if(page==='maintenance')renderMaintenance(s);
+  if(!staff)profiles=s.visit_open&&s.visitor_mode?s.player_ids.map((id,i)=>({id,nickname:i?'橙色访客':'蓝色访客',avatar:i?'star':'wave'})):[];
  }
  renderPermissions();
 }
 async function prepare(){
- for(let i=0;i<draft.players;i++)draft.player_ids[i]=$('draft-player-'+i).value;
- if(new Set(draft.player_ids.slice(0,draft.players)).size!==draft.players)return notify('请选择两位不同的玩家。');
- await act('prepare',{activity:draft.activity,players:draft.players,duration:preset.duration,distance:preset.distance,references:preset.references.slice(0,draft.players),bindings:preset.bindings.slice(0,draft.players),player_ids:draft.player_ids.slice(0,draft.players),session_kind:preset.session_kind});
+ for(let i=0;i<draft.players;i++)draft.continuing_lanes[i]=+$('draft-player-'+i).value;
+ const retained=draft.continuing_lanes.slice(0,draft.players).filter(Boolean);
+ if(new Set(retained).size!==retained.length)return notify('同一位访客不能占用两个位置。');
+ await act('prepare',{activity:draft.activity,players:draft.players,duration:preset.duration,distance:preset.distance,references:preset.references.slice(0,draft.players),bindings:preset.bindings.slice(0,draft.players),visit_action:draft.visit_action,continuing_lanes:draft.continuing_lanes.slice(0,draft.players),session_kind:preset.session_kind});
 }
 function eventText(e){return (finite(e.t)?number(e.t,1)+' 秒 · ':'')+(e.lane?'玩家 '+e.lane+' · ':'')+describe(e.reason||e.new||e.event);}
 function reportStateText(r){return (r.base.mode==='simulation'?'模拟数据':'实机采集')+' · '+(r.status==='ready'?'基础记录已保存':r.status==='pending'?'正在保存，请稍候':'记录不完整，请老师检查')+' · '+describe(r.base.reason);}
@@ -221,8 +243,8 @@ async function loadReport(){
   if(epoch!==routeEpoch)return;report=r;
   if(page==='result')renderResult(r);else if(page==='report')renderReport(r);
   renderPermissions();
-  if(r.status==='pending')reportRetry=setTimeout(loadReport,1000);
- }catch(e){if(epoch!==routeEpoch)return;setText('report-status',e.message);setText('detail-status',e.message);}
+  if(r.status==='pending'||pendingAnalysis(r))reportRetry=setTimeout(loadReport,1000);
+ }catch(e){if(epoch!==routeEpoch)return;report=null;setHtml('analysis-content','');setText('report-status',e.message);setText('detail-status',e.message);}
 }
 function renderResult(r){
  const s=r.base,rs={...s,player_ids:r.config.player_ids||[]},raceMode=s.activity==='racing',finished=s.state==='finished',enough=s.players.every(p=>p.sample_count>=2);
@@ -259,6 +281,7 @@ function renderReport(r){
 }
 function showReportLane(){
  if(!report)return;const lane=+$('report-player').value||0,p=report.base.players[lane],enough=p.sample_count>=2;
+ renderAnalysis(report,lane);
  const metrics=[['有效时长',plainSeconds(p.valid_seconds),'clock'],['达标时间占比',enough&&finite(p.stable_ratio)?number(p.stable_ratio,1)+'%':'暂无足够数据','leaf'],['最长连续达标',enough?plainSeconds(p.best_streak):'暂无足够数据','star']];
  $('report').dataset.lane=lane;
  setHtml('detail-metrics',metrics.map(([k,v,symbol])=>'<article class="card"><small>'+icon(symbol)+k+'</small><strong>'+v+'</strong></article>').join(''));
@@ -270,13 +293,14 @@ function showReportLane(){
  plots.review('review-chart',report,lane);plots.distribution('distribution-chart',report,lane);plots.resize();
 }
 function fillHistoryPlayers(){
+ if(!staff&&state())profiles=state().visit_open&&state().visitor_mode?state().player_ids.map((id,i)=>({id,nickname:i?'橙色访客':'蓝色访客',avatar:i?'star':'wave'})):[];
  const old=$('history-player').value;
- $('history-player').replaceChildren(...profiles.map(p=>new Option(p.nickname,p.id)));
- $('history-player').value=profiles.some(p=>p.id===old)?old:profiles[0].id;
+ $('history-player').replaceChildren(new Option(staff?'全部体验 · 不合并个人趋势':'本次到访全部记录',''),...profiles.map(p=>new Option(p.nickname,p.id)));
+ $('history-player').value=profiles.some(p=>p.id===old)?old:'';
 }
 function recordHtml(s){
  const p=s.players.find(p=>p.player_id===$('history-player').value),valid=s.complete&&s.status==='finished'&&p?.sample_count>=2;
- const summary=s.status==='aborted'?'本次已中断':valid?'最长连续 '+plainSeconds(p.best_streak):'暂无足够数据';
+ const summary=s.status==='aborted'?'本次已中断':valid?'最长连续 '+plainSeconds(p.best_streak):s.complete?'本次记录已保存':'暂无足够数据';
  return '<article class="record"><span class="record-symbol '+(s.activity==='racing'?'race':s.players.length===2?'duo':'')+'">'+icon(s.activity==='racing'?'flag':s.players.length===2?'people':'person')+'</span><div><strong>'+esc(new Date(s.started_utc).toLocaleString('zh-CN',{month:'numeric',day:'numeric',hour:'2-digit',minute:'2-digit'}))+' · '+(s.activity==='racing'?'小车竞速':s.players.length===2?'双人训练':'单人训练')+'</strong><small>'+esc(summary)+'<br>'+esc(s.players.map(p=>profile(p.player_id).nickname).join(' / '))+' · '+(s.mode==='simulation'?'模拟':'实机')+' · '+(s.complete?'已保存':'未完整保存')+'</small></div><a aria-label="查看本次收获" href="#result/'+encodeURIComponent(s.session_id)+'">›</a></article>';
 }
 async function loadHistory(){
@@ -297,11 +321,12 @@ async function loadHistory(){
 function renderHistory(){
  const condition=$('history-condition').value,rows=historyRows.filter(s=>!condition||s.condition===condition);
  setHtml('history-list',rows.map(recordHtml).join('')||'<div class="empty-state">'+icon('leaf')+'<p>这里等着记录你的第一次练习</p></div>');
- setText('history-hint',condition?'只比较同一玩家、相同条件的完整记录；中断或样本不足处保留断点。':'先选择上方条件，再看看自己的积累。');
+ const selected=$('history-player').value,identified=selected.startsWith('guest-');
+ setText('history-hint',!identified?'请选择本次访客查看趋势；旧昵称记录身份未确认，不作为个人成长记录。':condition?'只比较本次到访同一访客、相同条件的完整记录。':'先选择相同条件，再查看本次到访的积累。');
  const metric=document.querySelector('[data-trend][aria-pressed="true"]').dataset.trend;
- const comparable=condition?rows.filter(s=>s.complete&&s.status==='finished').map(s=>s.players.find(p=>p.player_id===$('history-player').value)).filter(p=>p?.sample_count>=2):[];
+ const comparable=condition&&identified?rows.filter(s=>s.complete&&s.status==='finished').map(s=>s.players.find(p=>p.player_id===selected)).filter(p=>p?.sample_count>=2):[];
  setHtml('history-summary',icon('star')+'<div><small>同条件最长连续达标</small><strong>'+(comparable.length?plainSeconds(Math.max(...comparable.map(p=>p.best_streak))):'—')+'</strong></div><span>'+comparable.length+' 次完整记录</span>');
- plots.historyTrend('trend-chart',condition?rows:[],$('history-player').value,metric);
+ plots.historyTrend('trend-chart',condition&&identified?rows:[],selected,metric);
 }
 function selectDuration(){const value=+$('teacher-form').elements.duration.value;document.querySelectorAll('[data-duration]').forEach(b=>{const selected=+b.dataset.duration===value;b.classList.toggle('selected',selected);b.setAttribute('aria-pressed',String(selected));});}
 function fillSettings(){
@@ -310,8 +335,8 @@ function fillSettings(){
  $('bindings-form').elements.binding1.value=preset.bindings[0];$('bindings-form').elements.binding2.value=preset.bindings[1];
 }
 function fillProfiles(){
- const select=$('profile-select');select.replaceChildren(...profiles.map(p=>new Option(p.nickname,p.id)));
- if(!profiles.some(p=>p.id===profileId))profileId=profiles[0].id;
+ const list=staff?profiles:[],select=$('profile-select');select.replaceChildren(...list.map(p=>new Option(p.nickname,p.id)));
+ if(!list.some(p=>p.id===profileId))profileId=list[0]?.id||'';
  select.value=profileId;fillProfile();
 }
 function fillProfile(){const p=profile(profileId);$('profile-form').elements.nickname.value=p.nickname;$('profile-form').elements.avatar.value=p.avatar;}
@@ -320,8 +345,9 @@ async function savePreset(next,status){
  catch(e){setText(status,e.message);}
 }
 async function loadPreferences(){
+ const epoch=routeEpoch;
  try{
-  const [a,b]=await Promise.all([api('/api/preferences'),api('/api/players')]);preset=a.preset;profiles=b.players;
+  const [a,b]=await Promise.all([api('/api/preferences'),api('/api/players')]);if(epoch!==routeEpoch)return;preset=a.preset;profiles=b.players;staff=!!b.staff;
   document.body.classList.toggle('reduced-motion',preset.reduced_motion);
   if(page==='players')renderPlayerSelectors();
   if(page==='teacher'){fillSettings();fillProfiles();}
@@ -348,7 +374,9 @@ $('claim').onclick=takeControl;$('overlay-claim').onclick=takeControl;
 $('retry-connection').onclick=reconnect;$('reconnect').onclick=reconnect;
 $('cancel-countdown').onclick=()=>act('end');
 $('view-result').onclick=()=>navigate('result/'+state().session_id);
-$('again').onclick=()=>begin(report?.base.activity||'training');
+$('again').onclick=()=>begin(report?.base.activity||'training',true);
+$('next-visitor').onclick=finishVisit;
+$('analysis-retry').onclick=async()=>{try{const r=await api('/api/sessions/'+encodeURIComponent(reportId)+'/analysis/retry',{token:client.token});if(!r.queued)notify('已达到重试上限，请查看本地分析。');loadReport();}catch(e){notify(e.message);}};
 $('result-refresh').onclick=loadReport;
 $('report-back').onclick=()=>navigate('result/'+reportId);
 $('report-player').onchange=showReportLane;
@@ -368,8 +396,18 @@ $('profile-form').onsubmit=async e=>{
  try{const r=await api('/api/players',{token:client.token,player:{id:profileId,nickname:f.elements.nickname.value,avatar:f.elements.avatar.value}});profiles=profiles.some(p=>p.id===r.player.id)?profiles.map(p=>p.id===r.player.id?r.player:p):[...profiles,r.player];fillProfiles();setText('profile-status','昵称已保存。');}
  catch(error){setText('profile-status',error.message);}
 };
+document.querySelectorAll('.staff-unlock').forEach(button=>button.onclick=async()=>{
+ if(!await takeControl())return;setText('staff-error','');$('staff-pin').value='';$('staff-dialog').showModal();$('staff-pin').focus();
+});
+$('staff-cancel').onclick=()=>{$('staff-dialog').close();$('staff-pin').value='';};
+$('staff-unlock-form').onsubmit=async e=>{
+ e.preventDefault();
+ try{const r=await api('/api/staff/unlock',{token:client.token,pin:$('staff-pin').value});setStaffToken(r.staff_token);staff=true;$('staff-dialog').close();await loadPreferences();if(page==='history')loadHistory();}
+ catch(error){setText('staff-error',error.message);}finally{$('staff-pin').value='';}
+};
 $('export').onclick=async()=>{
- try{const r=await api('/api/sessions/'+encodeURIComponent(reportId)+'/export',{token:client.token});$('downloads').replaceChildren(...r.files.map(url=>{const a=document.createElement('a');a.href=url;a.download='';a.textContent=url.endsWith('.csv')?'逐路样本 CSV':'基础报告 JSON';return a;}));}
+ const epoch=routeEpoch;
+ try{const r=await api('/api/sessions/'+encodeURIComponent(reportId)+'/export',{token:client.token});if(epoch!==routeEpoch)return;$('downloads').replaceChildren(...r.files.map(url=>{const a=document.createElement('a');a.href=url;a.download='';a.textContent=url.endsWith('.csv')?'逐路样本 CSV':'基础报告 JSON';a.onclick=async e=>{e.preventDefault();try{const response=await fetch(url,{headers:requestHeaders()});if(!response.ok)throw new Error('当前到访无权下载这份记录');const blob=await response.blob();if(epoch!==routeEpoch)return;const objectUrl=URL.createObjectURL(blob),link=document.createElement('a');link.href=objectUrl;link.download=url.split('/').pop();link.click();setTimeout(()=>URL.revokeObjectURL(objectUrl),1000);}catch(error){notify(error.message);}};return a;}));}
  catch(e){notify(e.message);}
 };
 $('refresh-maintenance').onclick=loadMaintenance;
@@ -392,6 +430,9 @@ document.addEventListener('click',event=>{
 client.addEventListener('change',render);
 client.addEventListener('snapshot',({detail:{previous,packet}})=>{
  const s=packet.snapshot;
+ if(previous&&(JSON.stringify(previous.visit_ids)!==JSON.stringify(s.visit_ids)||previous.visit_open&&!s.visit_open)){
+  clearVisitView();if(['result','report','history'].includes(page)){location.replace('#home');route();}loadPreferences();
+ }
  if(previous&&previous.session_id===s.session_id&&!['finished','aborted'].includes(previous.state)&&['finished','aborted'].includes(s.state)&&page==='live'&&!['emergency_locked','fault_locked'].includes(s.safety))navigate('result/'+s.session_id);
  // Only acknowledge samples after the actual live canvas has had a paint opportunity.
  if(page==='live'&&s.state==='running')requestAnimationFrame(()=>requestAnimationFrame(()=>{if(page==='live')client.ack(packet);}));

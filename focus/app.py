@@ -68,6 +68,16 @@ def main(argv=None):
         parser.error(str(exc))
     logging.basicConfig(level=logging.INFO,
                         format=f"%(asctime)s [{config.mode}] %(levelname)s %(message)s")
+    if args.command in ("web", "training", "racing"):
+        from ai.configuration import load_local_env
+        from ai.provider import ProviderConfig
+        try:
+            load_local_env()
+            ai_config = ProviderConfig.from_env()
+            logging.info("AI reports: enabled=%s provider=%s model=%s simulation_allowed=%s",
+                         ai_config.enabled, ai_config.provider, ai_config.model, ai_config.allow_simulation)
+        except (OSError, ValueError):
+            logging.warning("Local AI configuration could not be loaded; check .env.deepseek permissions and fields")
     if args.environment:
         result = {"environment": environment(), "config": config.snapshot(), "config_sha256": config.digest}
         text = json.dumps(result, ensure_ascii=False, indent=2)

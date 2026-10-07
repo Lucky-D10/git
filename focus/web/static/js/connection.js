@@ -1,8 +1,11 @@
 import {describe} from './ui.js';
+let staffToken='';
+export function setStaffToken(value){staffToken=value;}
+export function requestHeaders(){return {'Content-Type':'application/json','X-Focus-Client':'web',...(staffToken?{'X-Focus-Staff':staffToken}:{})};}
 export async function api(url, body) {
  const controller=new AbortController(), timer=setTimeout(()=>controller.abort(),4000);
  try {
-  const response=await fetch(url,{method:body?'POST':'GET',headers:{'Content-Type':'application/json','X-Focus-Client':'web'},...(body?{body:JSON.stringify(body)}:{}),signal:controller.signal});
+  const response=await fetch(url,{method:body?'POST':'GET',headers:requestHeaders(),...(body?{body:JSON.stringify(body)}:{}),signal:controller.signal});
   const result=await response.json();
   if(!response.ok)throw new Error(describe(result.reason||result.detail||response.status));
   return result;

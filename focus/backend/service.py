@@ -13,6 +13,7 @@ import uuid
 
 from .engine import Engine, ALGORITHM_VERSION, TERMINAL
 from .storage import Store, export_session
+from .visitors import new_visit, guest_player
 
 
 @dataclass(frozen=True)
@@ -53,7 +54,10 @@ class BackendService:
         self.receipt_owner = None
         self.owner_requests = 0
         self.bindings = list(range(1, config.players + 1))
-        self.player_ids = [f"local-{i}" for i in self.bindings]
+        self.visit_ids = [new_visit() for _ in self.bindings]
+        self.player_ids = [guest_player(v) for v in self.visit_ids]
+        self.visitor_mode, self.visit_open = True, True
+        self.closing_visits = []
         self.recent_events = deque(maxlen=80)
         self.event_cursor = 0
         self.store = Store(config)
@@ -71,11 +75,14 @@ class BackendService:
             self.exports.shutdown(wait=False)
             raise
         self.thread = threading.Thread(target=self._run, name="focus-control", daemon=True)
+        from ai.worker import AnalysisWorker
+        self.analysis = AnalysisWorker(self.store.path)
 
     def _create(self, activity, duration, distance, references=None):
         self.epoch = self.clock()
         self.start_utc = datetime.now(timezone.utc).isoformat()
         self.session_id = uuid.uuid4().hex
+        self.participant_ids = [uuid.uuid4().hex for _ in range(self.config.players)]
         self.engine = Engine(self.config, self.session_id, activity, duration, distance, references)
         self.ordinal = 0
         self.last_flush_wall = self.clock()
@@ -96,6 +103,7 @@ class BackendService:
         self.started = True
         self._flush(force=True)
         self.thread.start()
+        self.analysis.start()
         return True
 
     def submit_frame(self, frame, absolute=False):
@@ -184,6 +192,10 @@ class BackendService:
             self.view["events"] = list(self.recent_events)
             self.view["bindings"] = list(self.bindings)
             self.view["player_ids"] = list(self.player_ids)
+            self.view["visit_ids"] = list(self.visit_ids)
+            self.view["participant_ids"] = list(self.participant_ids)
+            self.view["visitor_mode"] = self.visitor_mode
+            self.view["visit_open"] = self.visit_open
             self.view["session_kind"] = self.config.session_kind
             self.view["chart_points"] = [list(points) for points in self.chart_points[:self.config.players]]
             self.view["start_utc"] = self.start_utc
@@ -200,7 +212,8 @@ class BackendService:
         self._record("checkpoint", snap)
         batch = {"session_id": self.session_id, "start_utc": self.start_utc, "journal": self.journal,
                  "events": self.engine.events, "samples": self.engine.sample_rows, "snapshot": snap,
-                 "incomplete": self.incomplete, "player_ids": self.player_ids}
+                 "incomplete": self.incomplete, "player_ids": self.player_ids,
+                 "closed_visits": list(self.closing_visits)}
         for event in self.engine.events:
             self.event_cursor += 1
             self.recent_events.append({**event, "cursor": self.event_cursor})
@@ -209,10 +222,13 @@ class BackendService:
                                "activity": self.engine.activity, "duration": self.engine.duration,
                                "distance": self.engine.distance, "references": [l.reference for l in self.engine.lanes],
                                "algorithm": ALGORITHM_VERSION, "environment": self.environment,
-                               "bindings": self.bindings, "player_ids": self.player_ids}
+                               "bindings": self.bindings, "player_ids": self.player_ids,
+                               "visit_ids": self.visit_ids, "participant_ids": self.participant_ids,
+                               "identity_kind": "guest" if self.visitor_mode else "legacy_unverified"}
         if self.store.submit(batch):
             self.last_flush_wall = self.clock()
             self.metadata_pending = False
+            self.closing_visits.clear()
             self.journal, self.engine.events, self.engine.sample_rows = [], [], []
             if snap["state"] in TERMINAL:
                 self.terminal_ordinal = self.ordinal - 1
@@ -326,6 +342,16 @@ class BackendService:
             self.engine.event("intent_rejected", action=action, reason=reason)
         elif envelope and token == self.receipt_owner and self.owner_requests >= 1024 and action not in ("end", "emergency"):
             reason = "operation_limit_release_and_reclaim"
+        elif action == "finish_visit" and sid == self.session_id and self.engine.state in ("preparing", "finished", "aborted") and self.engine.safety == "inhibited":
+            if self.engine.state == "preparing":
+                self._intent("end", sid, {})
+            self.closing_visits.extend(v for v in self.visit_ids if v)
+            self.visit_open = False
+            self._record("visit_closed", {})
+            self._flush(force=True)
+            ok = not self.incomplete
+        elif action == "start" and not self.visit_open:
+            reason = "请先为下一位创建新体验"
         elif action == "prepare" and sid == self.session_id and self.engine.state in ("preparing", "finished", "aborted") and self.engine.safety == "inhibited" and not self.incomplete:
             try:
                 config = replace(self.config, players=options.get("players", self.config.players), session_kind=options.get("session_kind", self.config.session_kind))
@@ -333,7 +359,21 @@ class BackendService:
                 duration, distance = options.get("duration", self.engine.duration), options.get("distance", self.engine.distance)
                 references = options.get("references")
                 bindings = options.get("bindings", list(range(1, config.players + 1)))
-                players = options.get("player_ids", [f"local-{i}" for i in range(1, config.players + 1)])
+                visitor_mode = "player_ids" not in options
+                visit_action = options.get("visit_action", "new")
+                if visit_action not in ("new", "continue"):
+                    raise ValueError("体验方式必须是 new 或 continue")
+                visits = [new_visit() for _ in range(config.players)] if visitor_mode else [None] * config.players
+                if visitor_mode and visit_action == "continue":
+                    if not self.visitor_mode or not self.visit_open:
+                        raise ValueError("本次到访已结束，请开始新体验")
+                    lanes = options.get("continuing_lanes", list(range(1, config.players + 1)))
+                    if not isinstance(lanes, list) or len(lanes) != config.players or any(type(i) is not int or i < 0 or i > len(self.visit_ids) for i in lanes) or len([i for i in lanes if i]) != len(set(i for i in lanes if i)):
+                        raise ValueError("续玩参与者必须唯一；0 表示新访客")
+                    visits = [self.visit_ids[i-1] if i else new_visit() for i in lanes]
+                players = [guest_player(v) for v in visits] if visitor_mode else options["player_ids"]
+                if not visitor_mode and any(isinstance(p, str) and p.startswith("guest-") for p in players):
+                    raise ValueError("访客身份只能通过本次到访继续")
                 if activity == "racing" and config.players != 2:
                     raise ValueError("竞速需要两人")
                 if len(bindings) != config.players or len(set(bindings)) != len(bindings) or any(type(v) is not int or v not in (1, 2) for v in bindings):
@@ -343,9 +383,11 @@ class BackendService:
                 Engine(config, "validate", activity, duration, distance, references)
                 if self.engine.state == "preparing":
                     self._intent("end", sid, {})
+                self.closing_visits.extend(v for v in self.visit_ids if v and v not in visits)
                 self._flush(force=True)
                 if not self.incomplete:
                     self.config, self.bindings, self.player_ids = config, bindings, players
+                    self.visit_ids, self.visitor_mode, self.visit_open = visits, visitor_mode, True
                     self._create(activity, duration, distance, references)
                     ok = True
                 else:
@@ -389,4 +431,5 @@ class BackendService:
             self._flush(force=True)
             self._publish_view()
         self.store.close()
+        self.analysis.stop()
         self.exports.shutdown(wait=False)
